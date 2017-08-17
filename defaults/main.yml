@@ -213,7 +213,7 @@ _nginx_location:
   fastcgi_param:
     - 'SCRIPT_FILENAME $document_root$fastcgi_script_name'
   fastcgi_params_file: "{{ _nginx_conf_dir }}/fastcgi_params"
-  fastcgi_pass: '127.0.0.1:9000'
+  fastcgi_pass: ~
   fastcgi_script: ~
   fastcgi_split_path_info: ~
   flv: false
@@ -237,8 +237,7 @@ _nginx_location:
   proxy_set_header: []
   rewrite: []
   satisfy: ~
-  set:
-    - '$path_info $fastcgi_path_info'
+  set: []
   stub_status: ~
   try_files:
     - $uri
