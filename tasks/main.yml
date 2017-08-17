@@ -29,10 +29,6 @@
     nginx_upstream: "{{ loop_upstream }}"
   with_items: "{{ _nginx_user_settings.upstream|d([]) }}"
 
-- package:
-    name: ssl-cert
-    state: present
-
 - set_fact:
     nginx_servers: "{{ [_nginx_default_server]|list_append(_nginx_user_settings.server) }}"
   when: nginx.settings.default_server|int == 1

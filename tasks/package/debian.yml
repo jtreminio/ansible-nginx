@@ -43,5 +43,9 @@
   when: nginx.settings.package_source not in ('nginx', 'nginx-stable', 'nginx-mainline', 'passenger')
 
 - package:
+    name: ssl-cert
+    state: present
+
+- package:
     name: "{{ nginx.settings.package_name }}"
     state: "{{ nginx.settings.package_state }}"
