@@ -9,8 +9,8 @@
 - template:
     src: "{{ role_path }}/templates/conf.d/map.j2"
     dest: "{{ nginx_settings.conf_dir }}/conf.d/{{ map.name }}-map.conf"
-    owner: root
-    group: root
-    mode: '0644'
+    owner: "{{ nginx_settings.global_owner }}"
+    group: "{{ nginx_settings.global_group }}"
+    mode: "{{ nginx_settings.global_file_mode }}"
   notify:
     - restart nginx

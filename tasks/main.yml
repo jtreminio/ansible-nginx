@@ -1,16 +1,6 @@
 ---
 
-- name: merge vars from files
-  merge_yaml_files:
-    files:
-      - "{{ role_path }}/defaults/main.yml"
-      - "{{ role_path }}/vars/{{ ansible_os_family|lower }}.yml"
-  delegate_to: 127.0.0.1
-  become: no
-  register: merged_config
-
-- include_vars:
-    file: "{{ merged_config.meta }}"
+- include_vars: "{{ ansible_os_family|lower }}.yml"
 
 - set_fact:
     nginx_settings: "{{ _nginx_settings|combine(_nginx_user_settings.settings|d({})) }}"

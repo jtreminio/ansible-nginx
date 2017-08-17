@@ -1,21 +1,23 @@
-_nginx_conf_dir: /etc/nginx
-_nginx_run_dir: /var/nginx
-_nginx_log_dir: /var/log/nginx
+__nginx_conf_dir: /etc/nginx
+__nginx_daemon_user: nginx
+__nginx_log_dir: /var/log/nginx
+__nginx_log_group: root
+__nginx_run_dir: /var/nginx
 
 _nginx_settings:
   accept_mutex: 'on'
   accept_mutex_delay: 500ms
   client_body_buffer_size: 128k
   client_max_body_size: 10m
-  client_body_temp_path: "{{ _nginx_run_dir }}/client_body_temp"
+  client_body_temp_path: "{{ __nginx_run_dir }}/client_body_temp"
   client_body_timeout: 60
-  conf_dir: "{{ _nginx_conf_dir }}"
+  conf_dir: "{{ __nginx_conf_dir }}"
   confd_only: false
   confd_purge: false
   daemon: ~
-  daemon_user: nginx
+  daemon_user: "{{ __nginx_daemon_user }}"
   default_server: 1
-  error_log: "{{ _nginx_log_dir }}/error.log"
+  error_log: "{{ __nginx_log_dir }}/error.log"
   error_log_severity: error
   events_use: ~
   fastcgi_cache_inactive: 20m
@@ -27,7 +29,7 @@ _nginx_settings:
   fastcgi_cache_use_stale: ~
   global_group: root
   global_file_mode: '0644'
-  global_mode: '0755'
+  global_dir_mode: '0755'
   global_owner: root
   gzip: 'on'
   gzip_buffers: ~
@@ -38,16 +40,16 @@ _nginx_settings:
   gzip_proxied: 'off'
   gzip_types: ~
   gzip_vary: 'off'
-  http_access_log: "{{ _nginx_log_dir }}/access.log"
+  http_access_log: "{{ __nginx_log_dir }}/access.log"
   http_format_log: ~
   http_tcp_nodelay: 'on'
   http_tcp_nopush: 'off'
   keepalive_timeout: 65
   keepalive_requests: 100
   lingering_timeout: 5
-  log_dir: "{{ _nginx_log_dir }}"
+  log_dir: "{{ __nginx_log_dir }}"
   log_format: []
-  log_group: root
+  log_group: "{{ __nginx_log_group }}"
   log_mode: '0750'
   mail: false
   manage_repo: 1
@@ -82,10 +84,10 @@ _nginx_settings:
     - X-Real-IP $remote_addr
     - X-Forwarded-For $proxy_add_x_forwarded_for
     - Proxy ""
-  proxy_temp_path: "{{ _nginx_run_dir }}/proxy_temp"
+  proxy_temp_path: "{{ __nginx_run_dir }}/proxy_temp"
   proxy_use_temp_path: ~
   root_group: root
-  run_dir: "{{ _nginx_run_dir }}"
+  run_dir: "{{ __nginx_run_dir }}"
   send_timeout: 60
   sendfile: 'on'
   server_purge: false
@@ -230,7 +232,7 @@ _nginx_location:
   fastcgi_index: ~
   fastcgi_param:
     - 'SCRIPT_FILENAME $document_root$fastcgi_script_name'
-  fastcgi_params_file: "{{ _nginx_conf_dir }}/fastcgi_params"
+  fastcgi_params_file: "{{ __nginx_conf_dir }}/fastcgi_params"
   fastcgi_pass: ~
   fastcgi_script: ~
   fastcgi_split_path_info: ~

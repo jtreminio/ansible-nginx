@@ -13,7 +13,7 @@
 - set_fact:
     keep_conf_server: "{{ keep_conf_server|list_append(server_conf_file) }}"
 
-- include: "{{ playbook_dir }}/roles/common/tasks/firewall/add.yml"
+- include: "{{ playbook_dir }}/roles/jtreminio.common/tasks/firewall/add.yml"
   loop_control:
     loop_var: irule
   vars:
@@ -26,17 +26,17 @@
 - template:
     src: "{{ role_path }}/templates/server.j2"
     dest: "{{ nginx_settings.conf_dir }}/sites-available/{{ server_conf_file }}"
-    owner: root
-    group: root
-    mode: '0644'
+    owner: "{{ nginx_settings.global_owner }}"
+    group: "{{ nginx_settings.global_group }}"
+    mode: "{{ nginx_settings.global_file_mode }}"
   notify:
     - restart nginx
 
 - file:
     src: "{{ nginx_settings.conf_dir }}/sites-available/{{ server_conf_file }}"
     dest: "{{ nginx_settings.conf_dir }}/sites-enabled/{{ server_conf_file }}"
-    owner: root
-    group: root
+    owner: "{{ nginx_settings.global_owner }}"
+    group: "{{ nginx_settings.global_group }}"
     state: link
   notify:
     - restart nginx
