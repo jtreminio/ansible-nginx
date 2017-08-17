@@ -13,13 +13,11 @@
 - purge_dir:
     dir: "{{ nginx_settings.conf_dir }}/conf.d"
     keep: "{{ keep_conf_geo + keep_conf_map + keep_conf_upstream_http }}"
-
-- set_fact:
-    foo: "{{ keep_conf_geo + keep_conf_map + keep_conf_upstream_http }}"
-
-- debug:
-    var: foo
+  notify:
+    - restart nginx
 
 - purge_dir:
     dir: "{{ nginx_settings.conf_dir }}/conf.stream.d"
     keep: "{{ keep_conf_upstream_stream }}"
+  notify:
+    - restart nginx
