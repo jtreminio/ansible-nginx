@@ -107,6 +107,23 @@ _nginx_settings:
   worker_processes: 1
   worker_rlimit_nofile: 1024
 
+_nginx_geo:
+  name: ~
+  address: ~
+  default: ~
+  delete: ~
+  networks: []
+  proxies: []
+  proxy_recursive: false
+  ranges: false
+
+_nginx_map:
+  name: ~
+  default: ~
+  hostnames: false
+  mappings: []
+  string: ~
+
 _nginx_upstream:
   name: ''
   context: http
@@ -149,6 +166,7 @@ _nginx_server:
   error_log: ~
   error_page: []
   format_log: combined
+  geo: []
   gzip_types:
     - text/plain
     - text/css
@@ -247,20 +265,3 @@ _nginx_location:
   uwsgi_params: ~
   uwsgi_read_timeout: ~
   www_root: ~
-
-_nginx_map:
-  name: ~
-  default: ~
-  hostnames: false
-  mappings: []
-  string: ~
-
-_nginx_geo:
-  name: ~
-  address: ~
-  default: ~
-  delete: ~
-  networks: []
-  proxies: []
-  proxy_recursive: false
-  ranges: false

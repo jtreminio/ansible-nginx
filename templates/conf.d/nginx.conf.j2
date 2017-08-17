@@ -1,6 +1,6 @@
 #jinja2: lstrip_blocks: "True", trim_blocks: "True"
 # {{ ansible_managed }}
-{% set s = nginx.settings %}
+{% set s = nginx_settings %}
 
 {% if s.daemon %}
 daemon                {{ s.daemon }};

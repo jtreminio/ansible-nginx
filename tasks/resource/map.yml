@@ -1,11 +1,14 @@
 ---
 
 - set_fact:
-    map: "{{ _nginx_map|combine(server_map) }}"
+    map: "{{ _nginx_map|combine(v_map) }}"
+
+- set_fact:
+    keep_conf_map: "{{ keep_conf_map|list_append(map.name ~ '-map.conf') }}"
 
 - template:
     src: "{{ role_path }}/templates/conf.d/map.j2"
-    dest: "{{ nginx.settings.conf_dir }}/conf.d/{{ map.name }}-map.conf"
+    dest: "{{ nginx_settings.conf_dir }}/conf.d/{{ map.name }}-map.conf"
     owner: root
     group: root
     mode: '0644'

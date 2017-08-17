@@ -1,11 +1,14 @@
 ---
 
 - set_fact:
-    geo: "{{ _nginx_geo|combine(server_geo) }}"
+    geo: "{{ _nginx_geo|combine(v_geo) }}"
+
+- set_fact:
+    keep_conf_geo: "{{ keep_conf_geo|list_append(geo.name ~ '-geo.conf') }}"
 
 - template:
     src: "{{ role_path }}/templates/conf.d/geo.j2"
-    dest: "{{ nginx.settings.conf_dir }}/conf.d/{{ geo.name }}-geo.conf"
+    dest: "{{ nginx_settings.conf_dir }}/conf.d/{{ geo.name }}-geo.conf"
     owner: root
     group: root
     mode: '0644'

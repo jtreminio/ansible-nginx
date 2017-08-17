@@ -13,8 +13,21 @@
     file: "{{ merged_config.meta }}"
 
 - set_fact:
-    nginx:
-      settings: "{{ _nginx_settings|combine(_nginx_user_settings.settings) }}"
+    nginx_settings: "{{ _nginx_settings|combine(_nginx_user_settings.settings|d({})) }}"
+    nginx_geo: "{{ _nginx_user_settings.geo|d([]) }}"
+    nginx_map: "{{ _nginx_user_settings.map|d([]) }}"
+    nginx_server: "{{ _nginx_user_settings.server|d([]) }}"
+    nginx_upstream: "{{ _nginx_user_settings.upstream|d([]) }}"
+    keep_conf_geo: []
+    keep_conf_map: []
+    keep_conf_server: []
+    keep_conf_upstream_http: []
+    keep_conf_upstream_stream: []
+    keep_server_names: []
+
+- set_fact:
+    nginx_server: "{{ [_nginx_default_server]|list_append(nginx_server) }}"
+  when: nginx_settings.default_server|int == 1
 
 - include: package.yml
   static: no
@@ -26,52 +39,42 @@
   loop_control:
     loop_var: loop_upstream
   vars:
-    nginx_upstream: "{{ loop_upstream }}"
-  with_items: "{{ _nginx_user_settings.upstream|d([]) }}"
-
-- set_fact:
-    nginx_servers: "{{ [_nginx_default_server]|list_append(_nginx_user_settings.server) }}"
-  when: nginx.settings.default_server|int == 1
-
-- set_fact:
-    nginx_servers: "{{ _nginx_user_settings.server }}"
-  when: nginx.settings.default_server|int != 1
-
-- set_fact:
-    server_names: "{{ (server_names|d([])) | list_append('%03d'|format(index|int) ~ '-' ~ server_name|replace(' ', '_') ~ '.conf') }}"
-  loop_control:
-    loop_var: loop_server_purge
-  vars:
-    index: "{{ loop_server_purge.0 }}"
-    server_name: "{{ loop_server_purge.1 }}"
-  with_indexed_items: "{{ (nginx_servers|d([]))|json_query('[].server_name[0]') }}"
-
-- purge_dir:
-    dir: "{{ nginx.settings.conf_dir }}/sites-available"
-    keep: "{{ server_names|d([]) }}"
-
-- purge_dir:
-    dir: "{{ nginx.settings.conf_dir }}/sites-enabled"
-    keep: "{{ server_names|d([]) }}"
-  notify:
-    - restart nginx
+    v_upstream: "{{ loop_upstream }}"
+  with_items: "{{ nginx_upstream }}"
 
 - include: resource/server.yml
   loop_control:
     loop_var: loop_server
   vars:
     index: "{{ loop_server.0 }}"
-    nginx_server: "{{ loop_server.1 }}"
-  with_indexed_items: "{{ nginx_servers|d([]) }}"
+    v_server: "{{ loop_server.1 }}"
+  with_indexed_items: "{{ nginx_server }}"
+
+- include: resource/map.yml
+  loop_control:
+    loop_var: loop_map
+  vars:
+    v_map: "{{ loop_map }}"
+  with_items: "{{ nginx_map }}"
+
+- include: resource/geo.yml
+  loop_control:
+    loop_var: loop_geo
+  vars:
+    v_geo: "{{ loop_geo }}"
+  with_items: "{{ nginx_geo }}"
 
 - copy:
     src: "{{ role_path }}/files/webserver_landing.html"
     dest: "{{ _nginx_default_server.root }}/index.html"
-    owner: "{{ nginx.settings.global_owner }}"
-    group: "{{ nginx.settings.global_group }}"
-    mode: "{{ nginx.settings.global_file_mode }}"
-  when: nginx.settings.default_server|int == 1
+    owner: "{{ nginx_settings.global_owner }}"
+    group: "{{ nginx_settings.global_group }}"
+    mode: "{{ nginx_settings.global_file_mode }}"
+  when: nginx_settings.default_server|int == 1
   changed_when: False
+
+- include: purge.yml
+  static: no
 
 - include: service.yml
   static: no

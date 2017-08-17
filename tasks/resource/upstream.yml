@@ -1,16 +1,23 @@
 ---
 
 - set_fact:
-    upstream: "{{ _nginx_upstream|combine(nginx_upstream) }}"
+    upstream: "{{ _nginx_upstream|combine(v_upstream) }}"
 
 - set_fact:
-    conf_dir: "{{ (upstream.context == 'stream') | ternary('conf.stream.d', 'conf.d') }}"
+    keep_conf_upstream_http: "{{ keep_conf_upstream_http|list_append(upstream.name ~ '-upstream.conf') }}"
+    conf_dir: 'conf.d'
+  when: upstream.context == 'http'
+
+- set_fact:
+    keep_conf_upstream_stream: "{{ keep_conf_upstream_stream|list_append(upstream.name ~ '-upstream.conf') }}"
+    conf_dir: 'conf.stream.d'
+  when: upstream.context == 'stream'
 
 - template:
-    src: "{{ role_path }}/templates/upstream.conf.j2"
-    dest: "{{ nginx.settings.conf_dir }}/{{ conf_dir }}/{{ upstream.name }}-upstream.conf"
+    src: "{{ role_path }}/templates/conf.d/upstream.conf.j2"
+    dest: "{{ nginx_settings.conf_dir }}/{{ conf_dir }}/{{ upstream.name }}-upstream.conf"
     owner: root
-    group: "{{ nginx.settings.root_group }}"
+    group: "{{ nginx_settings.root_group }}"
     mode: '0644'
   notify:
     - restart nginx

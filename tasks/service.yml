@@ -2,8 +2,8 @@
 
 - block:
   - service:
-      name: "{{ nginx.settings.service_name }}"
-      state: "{{ nginx.settings.service_state }}"
-      enabled: "{{ nginx.settings.service_enabled }}"
+      name: "{{ nginx_settings.service_name }}"
+      state: "{{ nginx_settings.service_state }}"
+      enabled: "{{ nginx_settings.service_enabled }}"
 
-  when: nginx.settings.service_manage
+  when: nginx_settings.service_manage

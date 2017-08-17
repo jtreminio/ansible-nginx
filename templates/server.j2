@@ -143,7 +143,7 @@ server {
 {% elif server.access_log|lower in ['absent', 'off'] %}
   access_log                off;
 {% elif not server.access_log %}
-  access_log                {{ nginx.settings.log_dir }}/{{ (server.ssl)|ternary('ssl-', '') }}{{ sanitized_name }}.access.log {{ server.format_log }};
+  access_log                {{ nginx_settings.log_dir }}/{{ (server.ssl)|ternary('ssl-', '') }}{{ sanitized_name }}.access.log {{ server.format_log }};
 {% else %}
   access_log                {{ access_log }} {{ server.format_log }};
 {% endif %}
@@ -153,7 +153,7 @@ server {
   {% endfor %}
 {% elif server.error_log|lower in ['absent', 'off'] %}
 {% elif not server.error_log %}
-  error_log                 {{ nginx.settings.log_dir }}/{{ (server.ssl)|ternary('ssl-', '') }}{{ sanitized_name }}.error.log;
+  error_log                 {{ nginx_settings.log_dir }}/{{ (server.ssl)|ternary('ssl-', '') }}{{ sanitized_name }}.error.log;
 {% else %}
   error_log                 {{ error_log }};
 {% endif %}
