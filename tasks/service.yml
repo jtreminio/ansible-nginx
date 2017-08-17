@@ -7,5 +7,3 @@
       enabled: "{{ nginx.settings.service_enabled }}"
 
   when: nginx.settings.service_manage
-
-# todo: need to fix this; if conf broken this service call throws exception

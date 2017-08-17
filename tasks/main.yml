@@ -22,9 +22,6 @@
 - include: config.yml
   static: no
 
-- include: service.yml
-  static: no
-
 - include: resource/upstream.yml
   loop_control:
     loop_var: loop_upstream
@@ -79,3 +76,6 @@
     mode: "{{ nginx.settings.global_file_mode }}"
   when: nginx.settings.default_server|int == 1
   changed_when: False
+
+- include: service.yml
+  static: no
