@@ -4,6 +4,8 @@ __nginx_log_dir: /var/log/nginx
 __nginx_log_group: root
 __nginx_run_dir: /var/nginx
 
+__jtreminio_manage_firewall: false
+
 _nginx_settings:
   accept_mutex: 'on'
   accept_mutex_delay: 500ms

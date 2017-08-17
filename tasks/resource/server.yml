@@ -22,6 +22,7 @@
       port: "{{ irule|regex_replace('[A-Za-z]+[0-9]*')|regex_replace('[\\s*]')|regex_replace('[^\\d ]') }}"
       action: accept
   with_items: "{{ server.listen }}"
+  when: __jtreminio_manage_firewall
 
 - template:
     src: "{{ role_path }}/templates/server.j2"
