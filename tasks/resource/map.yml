@@ -1,0 +1,13 @@
+---
+
+- set_fact:
+    map: "{{ _nginx_map|combine(server_map) }}"
+
+- template:
+    src: "{{ role_path }}/templates/conf.d/map.j2"
+    dest: "{{ nginx.settings.conf_dir }}/conf.d/{{ map.name }}-map.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - restart nginx

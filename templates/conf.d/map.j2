@@ -1,0 +1,15 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+
+map {{ map.string }} ${{ map.name }} {
+{% if map.hostnames %}
+  hostnames;
+{% endif %}
+{% if map.default|string != '' %}
+  default {{ map.default }};
+{% endif %}
+
+{% for mapping in map.mappings %}
+  {{ mapping }};
+{% endfor %}
+}

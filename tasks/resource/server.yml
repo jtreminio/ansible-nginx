@@ -1,0 +1,50 @@
+---
+
+- set_fact:
+    server: "{{ _nginx_server|combine(nginx_server) }}"
+
+- set_fact:
+    index_formatted: "{{ '%03d'|format(index|int) }}"
+    sanitized_name: "{{ server.server_name[0]|replace(' ', '_') }}"
+
+- include: "{{ playbook_dir }}/roles/common/tasks/firewall/add.yml"
+  loop_control:
+    loop_var: irule
+  vars:
+    rule:
+      protocol: tcp
+      port: "{{ irule|regex_replace('[A-Za-z]+[0-9]*')|regex_replace('[\\s*]')|regex_replace('[^\\d ]') }}"
+      action: accept
+  with_items: "{{ server.listen }}"
+
+- template:
+    src: "{{ role_path }}/templates/server.j2"
+    dest: "{{ nginx.settings.conf_dir }}/sites-available/{{ index_formatted }}-{{ sanitized_name }}.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - restart nginx
+
+- file:
+    src: "{{ nginx.settings.conf_dir }}/sites-available/{{ index_formatted }}-{{ sanitized_name }}.conf"
+    dest: "{{ nginx.settings.conf_dir }}/sites-enabled/{{ index_formatted }}-{{ sanitized_name }}.conf"
+    owner: root
+    group: root
+    state: link
+  notify:
+    - restart nginx
+
+- include: map.yml
+  loop_control:
+    loop_var: loop_map
+  vars:
+    server_map: "{{ loop_map }}"
+  with_items: "{{ server.map|d([]) }}"
+
+- include: geo.yml
+  loop_control:
+    loop_var: loop_geo
+  vars:
+    server_geo: "{{ loop_geo }}"
+  with_items: "{{ server.geo|d([]) }}"

@@ -1,0 +1,16 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+
+upstream {{ upstream.name }} {
+{% for config in upstream.pre_config %}
+  {{ config }};
+{% endfor %}
+
+{% for server in upstream.server %}
+  server     {{ server }};
+{% endfor %}
+
+{% for config in upstream.post_config %}
+  {{ config }};
+{% endfor %}
+}

@@ -1,0 +1,25 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+
+geo {{ (geo.address)|ternary(geo.address, '') }} ${{ geo.name }} {
+{% if geo.ranges %}
+  ranges;
+{% endif %}
+{% if geo.default|string != '' %}
+  default {{ geo.default }};
+{% endif %}
+{% if geo.delete %}
+  delete {{ geo.delete }};
+{% endif %}
+{% if geo.proxies|length > 0 %}
+  {% if geo.proxy_recursive %}
+  proxy_recursive;
+  {% endif %}
+  {% for proxy in geo.proxies %}
+  proxy {{ proxy }};
+  {% endfor %}
+{% endif %}
+{% for network in geo.networks %}
+  {{ network }};
+{% endfor %}
+}

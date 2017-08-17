@@ -1,0 +1,16 @@
+---
+
+- set_fact:
+    upstream: "{{ _nginx_upstream|combine(nginx_upstream) }}"
+
+- set_fact:
+    conf_dir: "{{ (upstream.context == 'stream') | ternary('conf.stream.d', 'conf.d') }}"
+
+- template:
+    src: "{{ role_path }}/templates/upstream.conf.j2"
+    dest: "{{ nginx.settings.conf_dir }}/{{ conf_dir }}/{{ upstream.name }}-upstream.conf"
+    owner: root
+    group: "{{ nginx.settings.root_group }}"
+    mode: '0644'
+  notify:
+    - restart nginx

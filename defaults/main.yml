@@ -1,0 +1,267 @@
+_nginx_conf_dir: /etc/nginx
+_nginx_run_dir: /var/nginx
+_nginx_log_dir: /var/log/nginx
+
+_nginx_settings:
+  accept_mutex: 'on'
+  accept_mutex_delay: 500ms
+  client_body_buffer_size: 128k
+  client_max_body_size: 10m
+  client_body_temp_path: "{{ _nginx_run_dir }}/client_body_temp"
+  client_body_timeout: 60
+  conf_dir: "{{ _nginx_conf_dir }}"
+  confd_only: false
+  confd_purge: false
+  daemon: ~
+  daemon_user: nginx
+  default_server: 1
+  error_log: "{{ _nginx_log_dir }}/error.log"
+  error_log_severity: error
+  events_use: ~
+  fastcgi_cache_inactive: 20m
+  fastcgi_cache_key: ~
+  fastcgi_cache_keys_zone: d3:100m
+  fastcgi_cache_levels: 1
+  fastcgi_cache_max_size: 500m
+  fastcgi_cache_path: ~
+  fastcgi_cache_use_stale: ~
+  global_group: root
+  global_file_mode: '0644'
+  global_mode: '0755'
+  global_owner: root
+  gzip: 'on'
+  gzip_buffers: ~
+  gzip_comp_level: 1
+  gzip_disable: 'msie6'
+  gzip_http_version: 1.1
+  gzip_min_length: 20
+  gzip_proxied: 'off'
+  gzip_types: ~
+  gzip_vary: 'off'
+  http_access_log: "{{ _nginx_log_dir }}/access.log"
+  http_format_log: ~
+  http_tcp_nodelay: 'on'
+  http_tcp_nopush: 'off'
+  keepalive_timeout: 65
+  keepalive_requests: 100
+  lingering_timeout: 5
+  log_dir: "{{ _nginx_log_dir }}"
+  log_format: []
+  log_group: root
+  log_mode: '0750'
+  mail: false
+  manage_repo: 1
+  multi_accept: 'off'
+  names_hash_bucket_size: 64
+  names_hash_max_size: 512
+  package_state: present
+  package_name: nginx
+  package_source: nginx
+  passenger_package_state: present
+  pid: /var/run/nginx.pid
+  proxy_buffer_size: 8k
+  proxy_buffers: 32 4k
+  proxy_cache_inactive: 20m
+  proxy_cache_keys_zone: d2:100m
+  proxy_cache_levels: 1
+  proxy_cache_loader_files: ~
+  proxy_cache_loader_sleep: ~
+  proxy_cache_loader_threshold: ~
+  proxy_cache_max_size: 500m
+  proxy_cache_path: ~
+  proxy_connect_timeout: 90
+  proxy_headers_hash_bucket_size: 64
+  proxy_hide_header: []
+  proxy_http_version: ~
+  proxy_pass_header: []
+  proxy_read_timeout: 90
+  proxy_redirect: ~
+  proxy_send_timeout: 90
+  proxy_set_header:
+    - Host $host
+    - X-Real-IP $remote_addr
+    - X-Forwarded-For $proxy_add_x_forwarded_for
+    - Proxy ""
+  proxy_temp_path: "{{ _nginx_run_dir }}/proxy_temp"
+  proxy_use_temp_path: ~
+  root_group: root
+  run_dir: "{{ _nginx_run_dir }}"
+  send_timeout: 60
+  sendfile: 'on'
+  server_purge: false
+  server_tokens: 'on'
+  service_args: ~
+  service_enabled: 'yes'
+  service_manage: true
+  service_name: nginx
+  service_state: started
+  sites_available_group: root
+  sites_available_mode: '0755'
+  sites_available_owner: root
+  stream: false
+  super_user: true
+  temp_dir: /tmp
+  types_hash_bucket_size: 512
+  types_hash_max_size: 1024
+  worker_connections: 1024
+  worker_processes: 1
+  worker_rlimit_nofile: 1024
+
+_nginx_upstream:
+  name: ''
+  context: http
+  pre_config: []
+  server: []
+  post_config: []
+
+_nginx_default_server:
+  server_name:
+    - _
+  listen:
+    - '80 default_server'
+  root: /var/www/html
+  index_files:
+    - index.html
+  client_body_timeout: ~
+  client_header_timeout: ~
+  client_max_body_size: ~
+  gzip_types: []
+  resolver: []
+
+_nginx_server:
+  rewrite_www_to_non_www: 0
+  server_name: []
+  listen:
+    - '*:80'
+  root: ~
+  index_files:
+    - index.html
+    - index.htm
+  access_log: ~
+  add_header: []
+  allow_deny: []
+  auth_basic: ~
+  auth_basic_user_file: ~
+  auth_request: ~
+  client_body_timeout: 12
+  client_header_timeout: 12
+  client_max_body_size: 8m
+  error_log: ~
+  error_page: []
+  format_log: combined
+  gzip_types:
+    - text/plain
+    - text/css
+    - application/json
+    - application/x-javascript
+    - text/xml
+    - application/xml
+    - application/xml+rss
+    - text/javascript
+  include: []
+  location: []
+  log_by_lua: ~
+  log_by_lua_file: ~
+  maintenance: ~
+  maintenance_value: ~
+  map: []
+  passenger_cgi_param: []
+  passenger_env_var: []
+  passenger_pre_start: ~
+  passenger_set_header: []
+  proxy_set_header:
+    - Host $host
+    - X-Real-IP $remote_addr
+    - X-Forwarded-For $proxy_add_x_forwarded_for
+    - Proxy ""
+  raw_append: []
+  raw_prepend: []
+  resolver:
+    - 8.8.8.8
+    - 8.8.4.4
+  rewrite: []
+  sendfile: 'off'
+  ssl: false
+  ssl_certificate: /etc/ssl/certs/ssl-cert-snakeoil.pem
+  ssl_certificate_key: /etc/ssl/private/ssl-cert-snakeoil.key
+  ssl_ciphers: 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH'
+  ssl_ecdh_curve: secp384r1
+  ssl_prefer_server_ciphers: 'on'
+  ssl_protocols: TLSv1.2
+  ssl_redirect: 0
+  ssl_session_cache: shared:SSL:10m
+  ssl_session_tickets: 'off'
+  ssl_session_timeout: 5m
+  ssl_stapling: 'on'
+  ssl_stapling_verify: 'on'
+
+_nginx_location:
+  root: ~
+  index:
+    - index.html
+  location: /
+  alias: ~
+  allow: []
+  auth_basic: ~
+  auth_basic_user_file: ~
+  auth_request: ~
+  autoindex: 'on'
+  cfg_prepend: []
+  deny: []
+  expires: false
+  fastcgi_index: ~
+  fastcgi_param:
+    - 'SCRIPT_FILENAME $document_root$fastcgi_script_name'
+  fastcgi_params_file: "{{ _nginx_conf_dir }}/fastcgi_params"
+  fastcgi_pass: '127.0.0.1:9000'
+  fastcgi_script: ~
+  fastcgi_split_path_info: ~
+  flv: false
+  include: []
+  internal: ~
+  mp4: false
+  proxy_buffering: ~
+  proxy_cache: ~
+  proxy_cache_key: ~
+  proxy_cache_use_stale: ~
+  proxy_cache_valid: ~
+  proxy_connect_timeout: ~
+  proxy_hide_header: []
+  proxy_http_version: ~
+  proxy_method: ~
+  proxy_pass: ~
+  proxy_pass_header: []
+  proxy_read_timeout: ~
+  proxy_redirect: ~
+  proxy_set_body: ~
+  proxy_set_header: []
+  rewrite: []
+  satisfy: ~
+  set:
+    - '$path_info $fastcgi_path_info'
+  stub_status: ~
+  try_files:
+    - $uri
+    - $uri/
+  uwsgi_pass: false
+  uwsgi_param: []
+  uwsgi_params: ~
+  uwsgi_read_timeout: ~
+  www_root: ~
+
+_nginx_map:
+  name: ~
+  default: ~
+  hostnames: false
+  mappings: []
+  string: ~
+
+_nginx_geo:
+  name: ~
+  address: ~
+  default: ~
+  delete: ~
+  networks: []
+  proxies: []
+  proxy_recursive: false
+  ranges: false

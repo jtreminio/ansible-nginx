@@ -1,0 +1,4 @@
+nginx:
+    settings:
+        daemon_user: www-data
+        log_group: adm

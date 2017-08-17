@@ -1,0 +1,151 @@
+- file:
+    path: "{{ nginx.settings.conf_dir }}"
+    state: directory
+    owner: "{{ nginx.settings.global_owner }}"
+    group: "{{ nginx.settings.global_group }}"
+    mode: "{{ nginx.settings.global_mode }}"
+
+- file:
+    path: "{{ nginx.settings.conf_dir }}/conf.stream.d"
+    state: directory
+    owner: "{{ nginx.settings.global_owner }}"
+    group: "{{ nginx.settings.global_group }}"
+    mode: "{{ nginx.settings.global_mode }}"
+
+- block:
+    - file:
+        path: "{{ nginx.settings.conf_dir }}/conf.d"
+        state: directory
+        owner: "{{ nginx.settings.global_owner }}"
+        group: "{{ nginx.settings.global_group }}"
+        mode: "{{ nginx.settings.global_mode }}"
+
+    - file:
+        path: "{{ nginx.settings.conf_dir }}/conf.mail.d"
+        state: directory
+        owner: "{{ nginx.settings.global_owner }}"
+        group: "{{ nginx.settings.global_group }}"
+        mode: "{{ nginx.settings.global_mode }}"
+  when: nginx.settings.confd_purge == false
+
+- block:
+    - block:
+        - file:
+            path: "{{ nginx.settings.conf_dir }}/conf.d"
+            state: absent
+          notify:
+            - restart nginx
+
+        - file:
+            path: "{{ nginx.settings.conf_dir }}/conf.stream.d"
+            state: absent
+          notify:
+            - restart nginx
+
+      when: (nginx.settings.confd_only and nginx.settings.server_purge) or nginx.settings.confd_only == false
+
+    - file:
+        path: "{{ nginx.settings.temp_dir }}/nginx.mail.d"
+        state: absent
+      notify:
+        - restart nginx
+
+  when: nginx.settings.confd_purge == true
+
+- file:
+    path: "{{ nginx.settings.run_dir }}"
+    state: directory
+    owner: "{{ nginx.settings.global_owner }}"
+    group: "{{ nginx.settings.global_group }}"
+    mode: "{{ nginx.settings.global_mode }}"
+
+- file:
+    path: "{{ nginx.settings.log_dir }}"
+    state: directory
+    owner: "{{ nginx.settings.daemon_user }}"
+    group: "{{ nginx.settings.log_group }}"
+    mode: "{{ nginx.settings.log_mode }}"
+
+- file:
+    path: "{{ nginx.settings.client_body_temp_path }}"
+    state: directory
+    owner: "{{ nginx.settings.daemon_user }}"
+    group: "{{ nginx.settings.global_group }}"
+    mode: "{{ nginx.settings.global_mode }}"
+
+- file:
+    path: "{{ nginx.settings.proxy_temp_path }}"
+    state: directory
+    owner: "{{ nginx.settings.daemon_user }}"
+    group: "{{ nginx.settings.global_group }}"
+    mode: "{{ nginx.settings.global_mode }}"
+
+- block:
+  - file:
+      path: "{{ nginx.settings.conf_dir }}/sites-available"
+      state: directory
+      owner: "{{ nginx.settings.sites_available_owner }}"
+      group: "{{ nginx.settings.sites_available_group }}"
+      mode: "{{ nginx.settings.sites_available_mode }}"
+
+  - file:
+      path: "{{ nginx.settings.conf_dir }}/sites-enabled"
+      state: directory
+      owner: "{{ nginx.settings.global_owner }}"
+      group: "{{ nginx.settings.global_group }}"
+      mode: "{{ nginx.settings.global_mode }}"
+
+  - block:
+    - set_fact:
+        server_names: "{{ (server_names|d([])) | list_append('%03d'|format(index|int) ~ '-' ~ server_name|replace(' ', '_') ~ '.conf') }}"
+      loop_control:
+        loop_var: nginx_vhost
+      vars:
+        index: "{{ nginx_vhost.0 }}"
+        server_name: "{{ nginx_vhost.1 }}"
+      with_indexed_items: "{{ nginx.vhosts|json_query('[].server_name[0]') }}"
+
+    - purge_dir:
+        dir: "{{ nginx.settings.conf_dir }}/sites-available"
+        keep: "{{ server_names }}"
+
+    - purge_dir:
+        dir: "{{ nginx.settings.conf_dir }}/sites-enabled"
+        keep: "{{ server_names }}"
+      notify:
+        - restart nginx
+
+    when: nginx.settings.server_purge
+
+  - file:
+      path: "{{ nginx.settings.conf_dir }}/streams-available"
+      state: directory
+      owner: "{{ nginx.settings.sites_available_owner }}"
+      group: "{{ nginx.settings.sites_available_group }}"
+      mode: "{{ nginx.settings.sites_available_mode }}"
+
+  - file:
+      path: "{{ nginx.settings.conf_dir }}/streams-enabled"
+      state: directory
+      owner: "{{ nginx.settings.global_owner }}"
+      group: "{{ nginx.settings.global_group }}"
+      mode: "{{ nginx.settings.global_mode }}"
+
+  when: nginx.settings.confd_only == false
+
+- template:
+    src: "{{ role_path }}/templates/conf.d/nginx.conf.j2"
+    dest: "{{ nginx.settings.conf_dir }}/nginx.conf"
+    owner: "{{ nginx.settings.global_owner }}"
+    group: "{{ nginx.settings.global_group }}"
+    mode: "{{ nginx.settings.global_file_mode }}"
+  notify:
+    - restart nginx
+
+- file:
+    path: "{{ nginx.settings.temp_dir }}/nginx.d"
+    state: absent
+
+- file:
+    path: "{{ nginx.settings.temp_dir }}/nginx.mail.d"
+    state: absent

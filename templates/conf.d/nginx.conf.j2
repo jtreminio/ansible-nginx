@@ -1,0 +1,202 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+# {{ ansible_managed }}
+{% set s = nginx.settings %}
+
+{% if s.daemon %}
+daemon                {{ s.daemon }};
+{% endif %}
+{% if s.super_user %}
+user                  {{ s.daemon_user }};
+{% endif %}
+worker_processes      {{ s.worker_processes }};
+{% if s.worker_rlimit_nofile %}
+worker_rlimit_nofile  {{ s.worker_rlimit_nofile }};
+{% endif %}
+
+{% if s.pid %}
+pid                   {{ s.pid }};
+{% endif %}
+{% if s.error_log|is_a('list') %}
+  {% for log_item in s.error_log %}
+error_log             {{ log_item }} {{ s.error_log_severity }};
+  {% endfor %}
+{% elif s.error_log is string %}
+error_log             {{ s.error_log }} {{ s.error_log_severity }};
+{% endif %}
+{# todo nginx_cfg_prepend #}
+events {
+  accept_mutex {{ s.accept_mutex }};
+{% if s.accept_mutex_delay %}
+  accept_mutex_delay  {{ s.accept_mutex_delay }};
+{% endif %}
+  worker_connections  {{ s.worker_connections }};
+{% if s.multi_accept == 'on' %}
+    multi_accept      on;
+{% endif %}
+{% if s.events_use %}
+    use               {{ s.events_use }};
+{% endif %}
+}
+
+http {
+{# todo http_raw_prepend #}
+{# todo http_cfg_prepend #}
+  include             {{ s.conf_dir }}/mime.types;
+  default_type        application/octet-stream;
+{% for log_format in s.log_format %}
+  log_format          {{ log_format }};
+{% endfor %}
+
+{% if s.http_access_log|is_a('list') %}
+  {% for log_item in s.http_access_log %}
+  access_log          {{ log_item }}{% if s.http_format_log %} {{ s.http_format_log }}{% endif %};
+  {% endfor %}
+{% elif s.http_access_log is string %}
+  access_log          {{ s.http_access_log }}{% if s.http_format_log %} {{ s.http_format_log }}{% endif %};
+{% endif %}
+
+{% if s.sendfile == 'on' %}
+  sendfile            on;
+  {% if s.http_tcp_nopush == 'on' %}
+  tcp_nopush          on;
+  {% endif %}
+{% endif %}
+  server_tokens       {{ s.server_tokens }};
+
+  types_hash_max_size    {{ s.types_hash_max_size }};
+  types_hash_bucket_size {{ s.types_hash_bucket_size }};
+
+  server_names_hash_bucket_size {{ s.names_hash_bucket_size }};
+  server_names_hash_max_size    {{ s.names_hash_max_size }};
+
+  keepalive_timeout   {{ s.keepalive_timeout }};
+  keepalive_requests  {{ s.keepalive_requests }};
+  client_body_timeout {{ s.client_body_timeout }};
+  send_timeout        {{ s.send_timeout }};
+  lingering_timeout   {{ s.lingering_timeout }};
+  tcp_nodelay         {{ s.http_tcp_nodelay }};
+
+{% if s.gzip == 'on' %}
+  gzip                on;
+  {% if s.gzip_buffers %}
+  gzip_buffers        {{ s.gzip_buffers }};
+  {% endif %}
+  gzip_comp_level     {{ s.gzip_comp_level }};
+  {% if s.gzip_disable %}
+  gzip_disable        {{ s.gzip_disable }};
+  {% endif %}
+  gzip_min_length     {{ s.gzip_min_length }};
+  gzip_http_version   {{ s.gzip_http_version }};
+  {% if s.gzip_proxied %}
+  gzip_proxied        {{ s.gzip_proxied }};
+  {% endif %}
+  {% if s.gzip_types|is_a('list') %}
+  gzip_types          {{ s.gzip_types|join(' ') }};
+  {% elif s.gzip_types is string %}
+  gzip_types          {{ s.gzip_types }};
+  {% endif %}
+  gzip_vary           {{ s.gzip_vary }};
+{% endif %}
+
+{% if s.client_body_temp_path %}
+  client_body_temp_path   {{ s.client_body_temp_path }};
+{% endif %}
+{% if s.client_max_body_size %}
+  client_max_body_size    {{ s.client_max_body_size }};
+{% endif %}
+{% if s.client_body_buffer_size %}
+  client_body_buffer_size {{ s.client_body_buffer_size }};
+{% endif %}
+{% if s.proxy_redirect %}
+  proxy_redirect          {{ s.proxy_redirect }};
+{% endif %}
+{% if s.proxy_temp_path %}
+  proxy_temp_path         {{ s.proxy_temp_path }};
+{% endif %}
+{% if s.proxy_connect_timeout %}
+  proxy_connect_timeout   {{ s.proxy_connect_timeout }};
+{% endif %}
+{% if s.proxy_send_timeout %}
+  proxy_send_timeout      {{ s.proxy_send_timeout }};
+{% endif %}
+{% if s.proxy_read_timeout %}
+  proxy_read_timeout      {{ s.proxy_read_timeout }};
+{% endif %}
+{% if s.proxy_buffers %}
+  proxy_buffers           {{ s.proxy_buffers }};
+{% endif %}
+{% if s.proxy_buffer_size %}
+  proxy_buffer_size       {{ s.proxy_buffer_size }};
+{% endif %}
+{% if s.proxy_http_version %}
+  proxy_http_version      {{ s.proxy_http_version }};
+{% endif %}
+{% for header in s.proxy_set_header %}
+  proxy_set_header        {{ header }};
+{% endfor %}
+{% for header in s.proxy_hide_header %}
+  proxy_hide_header       {{ header }};
+{% endfor %}
+{% for header in s.proxy_pass_header %}
+  proxy_pass_header       {{ header }};
+{% endfor %}
+{% if s.proxy_headers_hash_bucket_size %}
+  proxy_headers_hash_bucket_size {{ s.proxy_headers_hash_bucket_size }};
+{% endif %}
+
+{% if s.proxy_cache_path is mapping %}
+  {% for key, value in s.proxy_cache_path.iteritems() %}
+  proxy_cache_path        {{ key }} keys_zone={{ value }}
+    {%- if s.proxy_cache_levels %} levels={{ s.proxy_cache_levels }}{% endif %}
+    {%- if s.proxy_cache_max_size %} max_size={{ s.proxy_cache_max_size }}{% endif %}
+    {%- if s.proxy_cache_inactive %} inactive={{ s.proxy_cache_inactive }}{% endif %}
+    {%- if s.proxy_use_temp_path %} use_temp_path={{ s.proxy_use_temp_path }}{% endif %}
+    {%- if s.proxy_cache_loader_files %} loader_files={{ s.proxy_cache_loader_files }}{% endif %}
+    {%- if s.proxy_cache_loader_sleep %} loader_sleep={{ s.proxy_cache_loader_sleep }}{% endif %}
+    {%- if s.proxy_cache_loader_threshold %} loader_threshold={{ s.proxy_cache_loader_threshold }}{% endif %};
+  {% endfor %}
+{% elif s.proxy_cache_path is string %}
+  proxy_cache_path        {{ s.proxy_cache_path }}
+  {%- if s.proxy_cache_levels %} levels={{ s.proxy_cache_levels }}{% endif %}
+  {%- if s.proxy_cache_keys_zone %} keys_zone={{ s.proxy_cache_keys_zone }}{% endif %}
+  {%- if s.proxy_cache_max_size %} max_size={{ s.proxy_cache_max_size }}{% endif %}
+  {%- if s.proxy_cache_inactive %} inactive={{ s.proxy_cache_inactive }}{% endif %}
+  {%- if s.proxy_use_temp_path %} use_temp_path={{ s.proxy_use_temp_path }}{% endif %}
+  {%- if s.proxy_cache_loader_files %} loader_files={{ s.proxy_cache_loader_files }}{% endif %}
+  {%- if s.proxy_cache_loader_sleep %} loader_sleep={{ s.proxy_cache_loader_sleep }}{% endif %}
+  {%- if s.proxy_cache_loader_threshold %} loader_threshold={{ s.proxy_cache_loader_threshold }}{% endif %};
+{% endif -%}
+
+{% if s.fastcgi_cache_path %}
+  fastcgi_cache_path      {{ s.fastcgi_cache_path }}
+  {%- if s.fastcgi_cache_levels %} levels={{ s.fastcgi_cache_levels }}{% endif %}
+  {%- if s.fastcgi_cache_keys_zone %} keys_zone={{ s.fastcgi_cache_keys_zone }}{% endif %}
+  {%- if s.fastcgi_cache_max_size %} max_size={{ s.fastcgi_cache_max_size }}{% endif %}
+  {%- if s.fastcgi_cache_inactive %} inactive={{ s.fastcgi_cache_inactive }}{% endif %};
+{% endif -%}
+{% if s.fastcgi_cache_key %}
+  fastcgi_cache_key       {{ s.fastcgi_cache_key }};
+{% endif %}
+{% if s.fastcgi_cache_use_stale %}
+  fastcgi_cache_use_stale {{ s.fastcgi_cache_use_stale }};
+{% endif %}
+{# todo http_cfg_append #}
+{# todo http_raw_append #}
+  include                 {{ s.conf_dir }}/conf.d/*.conf;
+{% if not s.confd_only %}
+  include                 {{ s.conf_dir }}/sites-enabled/*;
+{% endif %}
+}
+{% if s.mail %}
+mail {
+  include                 {{ s.conf_dir }}/conf.mail.d/*.conf;
+}
+{% endif %}
+{% if s.stream %}
+stream {
+  include                 {{ s.conf_dir }}/conf.stream.d/*.conf;
+  {% if not s.confd_only %}
+  include                 {{ s.conf_dir }}/streams-enabled/*;
+  {% endif %}
+}
+{% endif %}

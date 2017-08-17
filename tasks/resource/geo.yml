@@ -1,0 +1,13 @@
+---
+
+- set_fact:
+    geo: "{{ _nginx_geo|combine(server_geo) }}"
+
+- template:
+    src: "{{ role_path }}/templates/conf.d/geo.j2"
+    dest: "{{ nginx.settings.conf_dir }}/conf.d/{{ geo.name }}-geo.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - restart nginx
