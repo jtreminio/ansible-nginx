@@ -134,7 +134,7 @@
   when: nginx_settings.confd_only == false
 
 - template:
-    src: "{{ role_path }}/templates/conf.d/nginx.conf.j2"
+    src: "{{ role_path }}/templates/nginx.conf.j2"
     dest: "{{ nginx_settings.conf_dir }}/nginx.conf"
     owner: "{{ nginx_settings.global_owner }}"
     group: "{{ nginx_settings.global_group }}"
