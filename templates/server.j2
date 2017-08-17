@@ -189,6 +189,9 @@ server {
   {% for rule in location.deny %}
     deny                    {{ rule }};
   {% endfor %}
+  {% for set in location.set %}
+    set                     {{ set }};
+  {% endfor %}
   {% if location.auth_basic %}
     auth_basic              "{{ location.auth_basic }}";
   {% endif %}
