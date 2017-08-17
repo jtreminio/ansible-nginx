@@ -14,7 +14,7 @@
 
 - set_fact:
     nginx:
-      settings: "{{ _nginx_settings|combine(config.nginx.settings) }}"
+      settings: "{{ _nginx_settings|combine(_nginx_user_settings.settings) }}"
 
 - include: package.yml
   static: no
@@ -27,18 +27,18 @@
     loop_var: loop_upstream
   vars:
     nginx_upstream: "{{ loop_upstream }}"
-  with_items: "{{ config.nginx.upstream|d([]) }}"
+  with_items: "{{ _nginx_user_settings.upstream|d([]) }}"
 
 - package:
     name: ssl-cert
     state: present
 
 - set_fact:
-    nginx_servers: "{{ [_nginx_default_server]|list_append(config.nginx.server) }}"
+    nginx_servers: "{{ [_nginx_default_server]|list_append(_nginx_user_settings.server) }}"
   when: nginx.settings.default_server|int == 1
 
 - set_fact:
-    nginx_servers: "{{ config.nginx.server }}"
+    nginx_servers: "{{ _nginx_user_settings.server }}"
   when: nginx.settings.default_server|int != 1
 
 - set_fact:
