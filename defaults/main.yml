@@ -7,6 +7,8 @@ __nginx_run_dir: /var/nginx
 __jtreminio_manage_firewall: false
 
 _nginx_settings:
+  _append: []
+  _prepend: []
   conf_dir: "{{ __nginx_conf_dir }}"
   confd_only: false
   confd_purge: false
@@ -15,10 +17,12 @@ _nginx_settings:
   default_server: 1
   error_log: "{{ __nginx_log_dir }}/error.log"
   error_log_severity: error
+  events: {} # use _nginx_settings_events
   global_group: root
   global_file_mode: '0644'
   global_dir_mode: '0755'
   global_owner: root
+  http: {} # use _nginx_settings_http
   log_dir: "{{ __nginx_log_dir }}"
   log_group: "{{ __nginx_log_group }}"
   log_mode: '0750'
