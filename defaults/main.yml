@@ -7,12 +7,6 @@ __nginx_run_dir: /var/nginx
 __jtreminio_manage_firewall: false
 
 _nginx_settings:
-  accept_mutex: 'on'
-  accept_mutex_delay: 500ms
-  client_body_buffer_size: 128k
-  client_max_body_size: 10m
-  client_body_temp_path: "{{ __nginx_run_dir }}/client_body_temp"
-  client_body_timeout: 60
   conf_dir: "{{ __nginx_conf_dir }}"
   confd_only: false
   confd_purge: false
@@ -21,7 +15,57 @@ _nginx_settings:
   default_server: 1
   error_log: "{{ __nginx_log_dir }}/error.log"
   error_log_severity: error
-  events_use: ~
+  global_group: root
+  global_file_mode: '0644'
+  global_dir_mode: '0755'
+  global_owner: root
+  log_dir: "{{ __nginx_log_dir }}"
+  log_group: "{{ __nginx_log_group }}"
+  log_mode: '0750'
+  mail: false
+  manage_repo: 1
+  package_state: present
+  package_name: nginx
+  package_source: nginx
+  passenger_package_state: present
+  pid: /var/run/nginx.pid
+  root_group: root
+  run_dir: "{{ __nginx_run_dir }}"
+  server_purge: false
+  service_args: ~
+  service_enabled: 'yes'
+  service_manage: true
+  service_name: nginx
+  service_state: started
+  sites_available_group: root
+  sites_available_mode: '0755'
+  sites_available_owner: root
+  stream: false
+  super_user: true
+  temp_dir: /tmp
+  worker_processes: 1
+  worker_rlimit_nofile: 1024
+
+_nginx_settings_events:
+  _append: []
+  _prepend: []
+  accept_mutex: 'off'
+  accept_mutex_delay: 500ms
+  debug_connection: []
+  multi_accept: 'off'
+  use: ~
+  worker_aio_requests: 32
+  worker_connections: 1024
+
+_nginx_settings_http:
+  _append: []
+  _prepend: []
+  access_log: "{{ __nginx_log_dir }}/access.log"
+  access_log_format: ~
+  client_body_buffer_size: 128k
+  client_body_temp_path: "{{ __nginx_run_dir }}/client_body_temp"
+  client_body_timeout: 60
+  client_max_body_size: 10m
   fastcgi_cache_inactive: 20m
   fastcgi_cache_key: ~
   fastcgi_cache_keys_zone: d3:100m
@@ -29,40 +73,19 @@ _nginx_settings:
   fastcgi_cache_max_size: 500m
   fastcgi_cache_path: ~
   fastcgi_cache_use_stale: ~
-  global_group: root
-  global_file_mode: '0644'
-  global_dir_mode: '0755'
-  global_owner: root
   gzip: 'on'
   gzip_buffers: ~
   gzip_comp_level: 1
-  gzip_disable: 'msie6'
+  gzip_disable: msie6
   gzip_http_version: 1.1
   gzip_min_length: 20
   gzip_proxied: 'off'
   gzip_types: ~
   gzip_vary: 'off'
-  http_access_log: "{{ __nginx_log_dir }}/access.log"
-  http_format_log: ~
-  http_tcp_nodelay: 'on'
-  http_tcp_nopush: 'off'
   keepalive_timeout: 65
   keepalive_requests: 100
   lingering_timeout: 5
-  log_dir: "{{ __nginx_log_dir }}"
   log_format: []
-  log_group: "{{ __nginx_log_group }}"
-  log_mode: '0750'
-  mail: false
-  manage_repo: 1
-  multi_accept: 'off'
-  names_hash_bucket_size: 64
-  names_hash_max_size: 512
-  package_state: present
-  package_name: nginx
-  package_source: nginx
-  passenger_package_state: present
-  pid: /var/run/nginx.pid
   proxy_buffer_size: 8k
   proxy_buffers: 32 4k
   proxy_cache_inactive: 20m
@@ -86,30 +109,17 @@ _nginx_settings:
     - X-Real-IP $remote_addr
     - X-Forwarded-For $proxy_add_x_forwarded_for
     - Proxy ""
-  proxy_temp_path: "{{ __nginx_run_dir }}/proxy_temp"
   proxy_use_temp_path: ~
-  root_group: root
-  run_dir: "{{ __nginx_run_dir }}"
-  send_timeout: 60
+  proxy_temp_path: "{{ __nginx_run_dir }}/proxy_temp"
   sendfile: 'on'
-  server_purge: false
+  send_timeout: 60
   server_tokens: 'on'
-  service_args: ~
-  service_enabled: 'yes'
-  service_manage: true
-  service_name: nginx
-  service_state: started
-  sites_available_group: root
-  sites_available_mode: '0755'
-  sites_available_owner: root
-  stream: false
-  super_user: true
-  temp_dir: /tmp
+  tcp_nopush: 'off'
+  server_names_hash_bucket_size: 64
+  server_names_hash_max_size: 512
+  tcp_nodelay: 'on'
   types_hash_bucket_size: 512
   types_hash_max_size: 1024
-  worker_connections: 1024
-  worker_processes: 1
-  worker_rlimit_nofile: 1024
 
 _nginx_geo:
   name: ~
@@ -139,7 +149,7 @@ _nginx_default_server:
   server_name:
     - _
   listen:
-    - '80 default_server'
+    - 80 default_server
   root: /var/www/html
   index_files:
     - index.html
@@ -233,7 +243,7 @@ _nginx_location:
   expires: false
   fastcgi_index: ~
   fastcgi_param:
-    - 'SCRIPT_FILENAME $document_root$fastcgi_script_name'
+    - SCRIPT_FILENAME $document_root$fastcgi_script_name
   fastcgi_params_file: "{{ __nginx_conf_dir }}/fastcgi_params"
   fastcgi_pass: ~
   fastcgi_script: ~

@@ -3,7 +3,12 @@
 - include_vars: "{{ ansible_os_family|lower }}.yml"
 
 - set_fact:
-    nginx_settings: "{{ _nginx_settings|combine(_nginx_user_settings.settings|d({})) }}"
+    nginx_settings_:
+      events: "{{ _nginx_settings_events|combine(_nginx_user_settings.settings.events|d({})) }}"
+      http: "{{ _nginx_settings_http|combine(_nginx_user_settings.settings.http|d({})) }}"
+
+- set_fact:
+    nginx_settings: "{{ _nginx_settings|combine(_nginx_user_settings.settings|d({}), nginx_settings_) }}"
     nginx_geo: "{{ _nginx_user_settings.geo|d([]) }}"
     nginx_map: "{{ _nginx_user_settings.map|d([]) }}"
     nginx_server: "{{ _nginx_user_settings.server|d([]) }}"

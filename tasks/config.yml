@@ -67,14 +67,14 @@
     mode: "{{ nginx_settings.log_mode }}"
 
 - file:
-    path: "{{ nginx_settings.client_body_temp_path }}"
+    path: "{{ nginx_settings.http.client_body_temp_path }}"
     state: directory
     owner: "{{ nginx_settings.daemon_user }}"
     group: "{{ nginx_settings.global_group }}"
     mode: "{{ nginx_settings.global_dir_mode }}"
 
 - file:
-    path: "{{ nginx_settings.proxy_temp_path }}"
+    path: "{{ nginx_settings.http.proxy_temp_path }}"
     state: directory
     owner: "{{ nginx_settings.daemon_user }}"
     group: "{{ nginx_settings.global_group }}"
