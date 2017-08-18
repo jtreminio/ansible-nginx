@@ -15,7 +15,7 @@ __nginx_settings:
   server: []
 
 _nginx_settings:
-  confd_purge: false
+  conf_purge: true
   default_server: 1
   global_group: root
   global_file_mode: '0644'
@@ -29,7 +29,7 @@ _nginx_settings:
   package_source: nginx
   passenger_package_state: present
   root_group: root
-  server_purge: false
+  server_purge: true
   service_args: ~
   service_enabled: 'yes'
   service_manage: true

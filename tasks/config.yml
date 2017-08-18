@@ -6,36 +6,25 @@
     mode: "{{ nginx_settings.global_dir_mode }}"
 
 - file:
-    path: "{{ nginx_conf.conf_dir }}/conf.stream.d"
+    path: "{{ nginx_conf.conf_dir }}/conf.d"
     state: directory
     owner: "{{ nginx_settings.global_owner }}"
     group: "{{ nginx_settings.global_group }}"
     mode: "{{ nginx_settings.global_dir_mode }}"
 
-- block:
-    - file:
-        path: "{{ nginx_conf.conf_dir }}/conf.d"
-        state: directory
-        owner: "{{ nginx_settings.global_owner }}"
-        group: "{{ nginx_settings.global_group }}"
-        mode: "{{ nginx_settings.global_dir_mode }}"
+- file:
+    path: "{{ nginx_conf.conf_dir }}/conf.mail.d"
+    state: directory
+    owner: "{{ nginx_settings.global_owner }}"
+    group: "{{ nginx_settings.global_group }}"
+    mode: "{{ nginx_settings.global_dir_mode }}"
 
-    - file:
-        path: "{{ nginx_conf.conf_dir }}/conf.mail.d"
-        state: directory
-        owner: "{{ nginx_settings.global_owner }}"
-        group: "{{ nginx_settings.global_group }}"
-        mode: "{{ nginx_settings.global_dir_mode }}"
-  when: nginx_settings.confd_purge == false
-
-- block:
-    - file:
-        path: "{{ nginx_conf.temp_dir }}/nginx.mail.d"
-        state: absent
-      notify:
-        - restart nginx
-
-  when: nginx_settings.confd_purge == true
+- file:
+    path: "{{ nginx_conf.conf_dir }}/conf.stream.d"
+    state: directory
+    owner: "{{ nginx_settings.global_owner }}"
+    group: "{{ nginx_settings.global_group }}"
+    mode: "{{ nginx_settings.global_dir_mode }}"
 
 - file:
     path: "{{ nginx_conf.run_dir }}"
