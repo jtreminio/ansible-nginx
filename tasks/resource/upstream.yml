@@ -15,7 +15,7 @@
 
 - template:
     src: "{{ role_path }}/templates/conf.d/upstream.conf.j2"
-    dest: "{{ nginx_settings.conf_dir }}/{{ conf_dir }}/{{ upstream.name }}-upstream.conf"
+    dest: "{{ nginx_conf.conf_dir }}/{{ conf_dir }}/{{ upstream.name }}-upstream.conf"
     owner: "{{ nginx_settings.global_owner }}"
     group: "{{ nginx_settings.global_group }}"
     mode: "{{ nginx_settings.global_file_mode }}"

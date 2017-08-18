@@ -28,7 +28,7 @@
 
 - template:
     src: "{{ role_path }}/templates/server.j2"
-    dest: "{{ nginx_settings.conf_dir }}/sites-available/{{ server_conf_file }}"
+    dest: "{{ nginx_conf.conf_dir }}/sites-available/{{ server_conf_file }}"
     owner: "{{ nginx_settings.global_owner }}"
     group: "{{ nginx_settings.global_group }}"
     mode: "{{ nginx_settings.global_file_mode }}"
@@ -36,8 +36,8 @@
     - restart nginx
 
 - file:
-    src: "{{ nginx_settings.conf_dir }}/sites-available/{{ server_conf_file }}"
-    dest: "{{ nginx_settings.conf_dir }}/sites-enabled/{{ server_conf_file }}"
+    src: "{{ nginx_conf.conf_dir }}/sites-available/{{ server_conf_file }}"
+    dest: "{{ nginx_conf.conf_dir }}/sites-enabled/{{ server_conf_file }}"
     owner: "{{ nginx_settings.global_owner }}"
     group: "{{ nginx_settings.global_group }}"
     state: link

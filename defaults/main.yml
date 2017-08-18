@@ -6,35 +6,30 @@ __nginx_run_dir: /var/nginx
 
 __jtreminio_manage_firewall: false
 
+__nginx_settings:
+  settings: {}
+  conf: {}
+  geo: []
+  map: []
+  upstream: []
+  server: []
+
 _nginx_settings:
-  _append: []
-  _prepend: []
-  conf_dir: "{{ __nginx_conf_dir }}"
   confd_only: false
   confd_purge: false
-  daemon: ~
-  daemon_user: "{{ __nginx_daemon_user }}"
   default_server: 1
-  error_log: "{{ __nginx_log_dir }}/error.log"
-  error_log_severity: error
-  events: {} # use _nginx_settings_events
   global_group: root
   global_file_mode: '0644'
   global_dir_mode: '0755'
   global_owner: root
-  http: {} # use _nginx_settings_http
-  log_dir: "{{ __nginx_log_dir }}"
   log_group: "{{ __nginx_log_group }}"
   log_mode: '0750'
-  mail: false
   manage_repo: 1
   package_state: present
   package_name: nginx
   package_source: nginx
   passenger_package_state: present
-  pid: /var/run/nginx.pid
   root_group: root
-  run_dir: "{{ __nginx_run_dir }}"
   server_purge: false
   service_args: ~
   service_enabled: 'yes'
@@ -44,13 +39,28 @@ _nginx_settings:
   sites_available_group: root
   sites_available_mode: '0755'
   sites_available_owner: root
-  stream: false
   super_user: true
-  temp_dir: /tmp
+
+_nginx_conf:
+  _append: []
+  _prepend: []
+  conf_dir: "{{ __nginx_conf_dir }}"
+  daemon: ~
+  daemon_user: "{{ __nginx_daemon_user }}"
+  error_log: "{{ __nginx_log_dir }}/error.log"
+  error_log_severity: error
+  events: {} # use _nginx_conf_events
+  http: {} # use _nginx_conf_http
+  log_dir: "{{ __nginx_log_dir }}"
+  mail: false
+  pid: /var/run/nginx.pid
+  run_dir: "{{ __nginx_run_dir }}"
+  stream: false
   worker_processes: 1
   worker_rlimit_nofile: 1024
+  temp_dir: /tmp
 
-_nginx_settings_events:
+_nginx_conf_events:
   _append: []
   _prepend: []
   accept_mutex: 'off'
@@ -61,7 +71,7 @@ _nginx_settings_events:
   worker_aio_requests: 32
   worker_connections: 1024
 
-_nginx_settings_http:
+_nginx_conf_http:
   _append: []
   _prepend: []
   access_log: "{{ __nginx_log_dir }}/access.log"

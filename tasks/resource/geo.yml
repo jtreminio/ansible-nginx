@@ -8,7 +8,7 @@
 
 - template:
     src: "{{ role_path }}/templates/conf.d/geo.j2"
-    dest: "{{ nginx_settings.conf_dir }}/conf.d/{{ geo.name }}-geo.conf"
+    dest: "{{ nginx_conf.conf_dir }}/conf.d/{{ geo.name }}-geo.conf"
     owner: "{{ nginx_settings.global_owner }}"
     group: "{{ nginx_settings.global_group }}"
     mode: "{{ nginx_settings.global_file_mode }}"

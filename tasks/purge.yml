@@ -1,23 +1,23 @@
 ---
 
 - purge_dir:
-    dir: "{{ nginx_settings.conf_dir }}/sites-available"
+    dir: "{{ nginx_conf.conf_dir }}/sites-available"
     keep: "{{ keep_conf_server }}"
 
 - purge_dir:
-    dir: "{{ nginx_settings.conf_dir }}/sites-enabled"
+    dir: "{{ nginx_conf.conf_dir }}/sites-enabled"
     keep: "{{ keep_conf_server }}"
   notify:
     - restart nginx
 
 - purge_dir:
-    dir: "{{ nginx_settings.conf_dir }}/conf.d"
+    dir: "{{ nginx_conf.conf_dir }}/conf.d"
     keep: "{{ keep_conf_geo + keep_conf_map + keep_conf_upstream_http }}"
   notify:
     - restart nginx
 
 - purge_dir:
-    dir: "{{ nginx_settings.conf_dir }}/conf.stream.d"
+    dir: "{{ nginx_conf.conf_dir }}/conf.stream.d"
     keep: "{{ keep_conf_upstream_stream }}"
   notify:
     - restart nginx

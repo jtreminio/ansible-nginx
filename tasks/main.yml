@@ -3,15 +3,16 @@
 - include_vars: "{{ ansible_os_family|lower }}.yml"
 
 - set_fact:
-    nginx_settings_:
-      events: "{{ _nginx_settings_events|combine(_nginx_user_settings.settings.events|d({})) }}"
-      http: "{{ _nginx_settings_http|combine(_nginx_user_settings.settings.http|d({})) }}"
+    nginx_conf_:
+      events: "{{ _nginx_conf_events|combine((_nginx_user_settings.conf|d({})).events|d({})) }}"
+      http: "{{ _nginx_conf_http|combine((_nginx_user_settings.conf|d({})).http|d({})) }}"
 
 - set_fact:
-    nginx_settings: "{{ _nginx_settings|combine(_nginx_user_settings.settings|d({}), nginx_settings_) }}"
+    nginx_conf: "{{ _nginx_conf|combine(_nginx_user_settings.conf|d({}), nginx_conf_) }}"
     nginx_geo: "{{ _nginx_user_settings.geo|d([]) }}"
     nginx_map: "{{ _nginx_user_settings.map|d([]) }}"
     nginx_server: "{{ _nginx_user_settings.server|d([]) }}"
+    nginx_settings: "{{ (_nginx_user_settings.settings|d({}))|combine(_nginx_settings) }}"
     nginx_upstream: "{{ _nginx_user_settings.upstream|d([]) }}"
     keep_conf_geo: []
     keep_conf_map: []
