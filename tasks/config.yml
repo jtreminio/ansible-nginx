@@ -29,21 +29,6 @@
   when: nginx_settings.confd_purge == false
 
 - block:
-    - block:
-        - file:
-            path: "{{ nginx_conf.conf_dir }}/conf.d"
-            state: absent
-          notify:
-            - restart nginx
-
-        - file:
-            path: "{{ nginx_conf.conf_dir }}/conf.stream.d"
-            state: absent
-          notify:
-            - restart nginx
-
-      when: (nginx_settings.confd_only and nginx_settings.server_purge) or nginx_settings.confd_only == false
-
     - file:
         path: "{{ nginx_conf.temp_dir }}/nginx.mail.d"
         state: absent

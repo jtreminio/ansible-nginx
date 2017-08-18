@@ -15,7 +15,6 @@ __nginx_settings:
   server: []
 
 _nginx_settings:
-  confd_only: false
   confd_purge: false
   default_server: 1
   global_group: root
