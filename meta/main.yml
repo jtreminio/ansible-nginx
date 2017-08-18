@@ -1,0 +1,8 @@
+galaxy_info:
+  license: MIT
+  
+  min_ansible_version: 2.3.1.0
+
+dependencies:
+  - name: jtreminio.common
+    src: https://github.com/jtreminio/ansible-common
