@@ -190,7 +190,7 @@ http {
   fastcgi_cache_use_stale       {{ c.http.fastcgi_cache_use_stale }};
 {% endif %}
   include                       {{ c.conf_dir }}/conf.d/*.conf;
-{% if not c.confd_only %}
+{% if not nginx_settings.confd_only %}
   include                       {{ c.conf_dir }}/sites-enabled/*;
 {% endif %}
 {% for line in c.http._append %}
@@ -205,7 +205,7 @@ mail {
 {% if c.stream %}
 stream {
   include                       {{ c.conf_dir }}/conf.stream.d/*.conf;
-  {% if not c.confd_only %}
+  {% if not nginx_settings.confd_only %}
   include                       {{ c.conf_dir }}/streams-enabled/*;
   {% endif %}
 }
