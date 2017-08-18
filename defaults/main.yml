@@ -39,7 +39,6 @@ _nginx_settings:
   sites_available_group: root
   sites_available_mode: '0755'
   sites_available_owner: root
-  super_user: true
 
 _nginx_conf:
   _append: []
@@ -56,6 +55,7 @@ _nginx_conf:
   pid: /var/run/nginx.pid
   run_dir: "{{ __nginx_run_dir }}"
   stream: false
+  super_user: true
   worker_processes: 1
   worker_rlimit_nofile: 1024
   temp_dir: /tmp
