@@ -3,46 +3,47 @@
 {% set s = nginx_settings %}
 
 {% if s.daemon %}
-daemon                {{ s.daemon }};
+daemon                          {{ s.daemon }};
 {% endif %}
 {% if s.super_user %}
-user                  {{ s.daemon_user }};
+user                            {{ s.daemon_user }};
 {% endif %}
-worker_processes      {{ s.worker_processes }};
+worker_processes                {{ s.worker_processes }};
 {% if s.worker_rlimit_nofile %}
-worker_rlimit_nofile  {{ s.worker_rlimit_nofile }};
+worker_rlimit_nofile            {{ s.worker_rlimit_nofile }};
 {% endif %}
-
 {% if s.pid %}
-pid                   {{ s.pid }};
+pid                             {{ s.pid }};
 {% endif %}
 {% if s.error_log|is_a('list') %}
   {% for log_item in s.error_log %}
-error_log             {{ log_item }} {{ s.error_log_severity }};
+error_log                       {{ log_item }} {{ s.error_log_severity }};
   {% endfor %}
 {% elif s.error_log is string %}
-error_log             {{ s.error_log }} {{ s.error_log_severity }};
+error_log                       {{ s.error_log }} {{ s.error_log_severity }};
 {% endif %}
-{# todo nginx_cfg_prepend #}
+{% for line in s._prepend %}
+  {{ line }};
+{% endfor %}
 events {
 {% for line in s.events._prepend %}
   {{ line }};
 {% endfor %}
-  accept_mutex {{ s.events.accept_mutex }};
+  accept_mutex                  {{ s.events.accept_mutex }};
 {% if s.events.accept_mutex_delay %}
-  accept_mutex_delay  {{ s.events.accept_mutex_delay }};
+  accept_mutex_delay            {{ s.events.accept_mutex_delay }};
 {% endif %}
 {% for line in s.events.debug_connection %}
   {{ append }};
 {% endfor %}
 {% if s.events.multi_accept == 'on' %}
-    multi_accept      on;
+    multi_accept                on;
 {% endif %}
 {% if s.events.use %}
-    use               {{ s.events.use }};
+    use                         {{ s.events.use }};
 {% endif %}
-  worker_aio_requests {{ s.events.worker_aio_requests }};
-  worker_connections  {{ s.events.worker_connections }};
+  worker_aio_requests           {{ s.events.worker_aio_requests }};
+  worker_connections            {{ s.events.worker_connections }};
 {% for line in s.events._append %}
   {{ line }};
 {% endfor %}
@@ -52,101 +53,101 @@ http {
 {% for line in s.http._prepend %}
   {{ line }};
 {% endfor %}
-  include             {{ s.conf_dir }}/mime.types;
+  include                       {{ s.conf_dir }}/mime.types;
   default_type        application/octet-stream;
 {% for log_format in s.http.log_format %}
-  log_format          {{ log_format }};
+  log_format                    {{ log_format }};
 {% endfor %}
 
 {% if s.http.access_log|is_a('list') %}
   {% for log_item in s.http.access_log %}
-  access_log          {{ log_item }}{% if s.http.access_log_format %} {{ s.http.access_log_format}}{% endif %};
+  access_log                    {{ log_item }}{% if s.http.access_log_format %} {{ s.http.access_log_format}}{% endif %};
   {% endfor %}
 {% elif s.http.access_log is string %}
-  access_log          {{ s.http.access_log }}{% if s.http.access_log_format %} {{ s.http.access_log_format }}{% endif %};
+  access_log                    {{ s.http.access_log }}{% if s.http.access_log_format %} {{ s.http.access_log_format }}{% endif %};
 {% endif %}
 
 {% if s.http.sendfile == 'on' %}
-  sendfile            on;
+  sendfile                      on;
   {% if s.http.tcp_nopush == 'on' %}
-  tcp_nopush          on;
+  tcp_nopush                    on;
   {% endif %}
 {% endif %}
-  server_tokens       {{ s.http.server_tokens }};
-  types_hash_max_size    {{ s.http.types_hash_max_size }};
-  types_hash_bucket_size {{ s.http.types_hash_bucket_size }};
+  server_tokens                 {{ s.http.server_tokens }};
+  types_hash_max_size           {{ s.http.types_hash_max_size }};
+  types_hash_bucket_size        {{ s.http.types_hash_bucket_size }};
   server_names_hash_bucket_size {{ s.http.server_names_hash_bucket_size }};
   server_names_hash_max_size    {{ s.http.server_names_hash_max_size }};
-  keepalive_timeout   {{ s.http.keepalive_timeout }};
-  keepalive_requests  {{ s.http.keepalive_requests }};
-  client_body_timeout {{ s.http.client_body_timeout }};
-  send_timeout        {{ s.http.send_timeout }};
-  lingering_timeout   {{ s.http.lingering_timeout }};
-  tcp_nodelay         {{ s.http.tcp_nodelay }};
+  keepalive_timeout             {{ s.http.keepalive_timeout }};
+  keepalive_requests            {{ s.http.keepalive_requests }};
+  client_body_timeout           {{ s.http.client_body_timeout }};
+  send_timeout                  {{ s.http.send_timeout }};
+  lingering_timeout             {{ s.http.lingering_timeout }};
+  tcp_nodelay                   {{ s.http.tcp_nodelay }};
 
 {% if s.http.gzip == 'on' %}
-  gzip                on;
+  gzip                          on;
   {% if s.http.gzip_buffers %}
-  gzip_buffers        {{ s.http.gzip_buffers }};
+  gzip_buffers                  {{ s.http.gzip_buffers }};
   {% endif %}
-  gzip_comp_level     {{ s.http.gzip_comp_level }};
+  gzip_comp_level               {{ s.http.gzip_comp_level }};
   {% if s.http.gzip_disable %}
-  gzip_disable        {{ s.http.gzip_disable }};
+  gzip_disable                  {{ s.http.gzip_disable }};
   {% endif %}
-  gzip_min_length     {{ s.http.gzip_min_length }};
-  gzip_http_version   {{ s.http.gzip_http_version }};
+  gzip_min_length               {{ s.http.gzip_min_length }};
+  gzip_http_version             {{ s.http.gzip_http_version }};
   {% if s.http.gzip_proxied %}
-  gzip_proxied        {{ s.http.gzip_proxied }};
+  gzip_proxied                  {{ s.http.gzip_proxied }};
   {% endif %}
   {% if s.http.gzip_types|is_a('list') %}
-  gzip_types          {{ s.http.gzip_types|join(' ') }};
+  gzip_types                    {{ s.http.gzip_types|join(' ') }};
   {% elif s.http.gzip_types is string %}
-  gzip_types          {{ s.http.gzip_types }};
+  gzip_types                    {{ s.http.gzip_types }};
   {% endif %}
-  gzip_vary           {{ s.http.gzip_vary }};
+  gzip_vary                     {{ s.http.gzip_vary }};
 {% endif %}
 
 {% if s.http.client_body_temp_path %}
-  client_body_temp_path   {{ s.http.client_body_temp_path }};
+  client_body_temp_path         {{ s.http.client_body_temp_path }};
 {% endif %}
 {% if s.http.client_max_body_size %}
-  client_max_body_size    {{ s.http.client_max_body_size }};
+  client_max_body_size          {{ s.http.client_max_body_size }};
 {% endif %}
 {% if s.http.client_body_buffer_size %}
-  client_body_buffer_size {{ s.http.client_body_buffer_size }};
+  client_body_buffer_size       {{ s.http.client_body_buffer_size }};
 {% endif %}
 {% if s.http.proxy_redirect %}
-  proxy_redirect          {{ s.http.proxy_redirect }};
+  proxy_redirect                {{ s.http.proxy_redirect }};
 {% endif %}
 {% if s.http.proxy_temp_path %}
-  proxy_temp_path         {{ s.http.proxy_temp_path }};
+  proxy_temp_path               {{ s.http.proxy_temp_path }};
 {% endif %}
 {% if s.http.proxy_connect_timeout %}
-  proxy_connect_timeout   {{ s.http.proxy_connect_timeout }};
+  proxy_connect_timeout         {{ s.http.proxy_connect_timeout }};
 {% endif %}
 {% if s.http.proxy_send_timeout %}
-  proxy_send_timeout      {{ s.http.proxy_send_timeout }};
+  proxy_send_timeout            {{ s.http.proxy_send_timeout }};
 {% endif %}
 {% if s.http.proxy_read_timeout %}
-  proxy_read_timeout      {{ s.http.proxy_read_timeout }};
+  proxy_read_timeout            {{ s.http.proxy_read_timeout }};
 {% endif %}
 {% if s.http.proxy_buffers %}
-  proxy_buffers           {{ s.http.proxy_buffers }};
+  proxy_buffers                 {{ s.http.proxy_buffers }};
 {% endif %}
 {% if s.http.proxy_buffer_size %}
-  proxy_buffer_size       {{ s.http.proxy_buffer_size }};
+  proxy_buffer_size             {{ s.http.proxy_buffer_size }};
 {% endif %}
 {% if s.http.proxy_http_version %}
-  proxy_http_version      {{ s.http.proxy_http_version }};
+  proxy_http_version            {{ s.http.proxy_http_version }};
 {% endif %}
 {% for header in s.http.proxy_set_header %}
-  proxy_set_header        {{ header }};
+  proxy_set_header              {{ header }};
 {% endfor %}
 {% for header in s.http.proxy_hide_header %}
-  proxy_hide_header       {{ header }};
+  proxy_hide_header             {{ header }};
 {% endfor %}
 {% for header in s.http.proxy_pass_header %}
-  proxy_pass_header       {{ header }};
+  proxy_pass_header             {{ header }};
 {% endfor %}
 {% if s.http.proxy_headers_hash_bucket_size %}
   proxy_headers_hash_bucket_size {{ s.http.proxy_headers_hash_bucket_size }};
@@ -154,7 +155,7 @@ http {
 
 {% if s.http.proxy_cache_path is mapping %}
   {% for key, value in s.http.proxy_cache_path.iteritems() %}
-  proxy_cache_path        {{ key }} keys_zone={{ value }}
+  proxy_cache_path              {{ key }} keys_zone={{ value }}
     {%- if s.http.proxy_cache_levels %} levels={{ s.http.proxy_cache_levels }}{% endif %}
     {%- if s.http.proxy_cache_max_size %} max_size={{ s.http.proxy_cache_max_size }}{% endif %}
     {%- if s.http.proxy_cache_inactive %} inactive={{ s.http.proxy_cache_inactive }}{% endif %}
@@ -164,7 +165,7 @@ http {
     {%- if s.http.proxy_cache_loader_threshold %} loader_threshold={{ s.http.proxy_cache_loader_threshold }}{% endif %};
   {% endfor %}
 {% elif s.http.proxy_cache_path is string %}
-  proxy_cache_path        {{ s.http.proxy_cache_path }}
+  proxy_cache_path              {{ s.http.proxy_cache_path }}
   {%- if s.http.proxy_cache_levels %} levels={{ s.http.proxy_cache_levels }}{% endif %}
   {%- if s.http.proxy_cache_keys_zone %} keys_zone={{ s.http.proxy_cache_keys_zone }}{% endif %}
   {%- if s.http.proxy_cache_max_size %} max_size={{ s.http.proxy_cache_max_size }}{% endif %}
@@ -176,21 +177,21 @@ http {
 {% endif -%}
 
 {% if s.http.fastcgi_cache_path %}
-  fastcgi_cache_path      {{ s.http.fastcgi_cache_path }}
+  fastcgi_cache_path            {{ s.http.fastcgi_cache_path }}
   {%- if s.http.fastcgi_cache_levels %} levels={{ s.http.fastcgi_cache_levels }}{% endif %}
   {%- if s.http.fastcgi_cache_keys_zone %} keys_zone={{ s.http.fastcgi_cache_keys_zone }}{% endif %}
   {%- if s.http.fastcgi_cache_max_size %} max_size={{ s.http.fastcgi_cache_max_size }}{% endif %}
   {%- if s.http.fastcgi_cache_inactive %} inactive={{ s.http.fastcgi_cache_inactive }}{% endif %};
 {% endif -%}
 {% if s.http.fastcgi_cache_key %}
-  fastcgi_cache_key       {{ s.http.fastcgi_cache_key }};
+  fastcgi_cache_key             {{ s.http.fastcgi_cache_key }};
 {% endif %}
 {% if s.http.fastcgi_cache_use_stale %}
-  fastcgi_cache_use_stale {{ s.http.fastcgi_cache_use_stale }};
+  fastcgi_cache_use_stale       {{ s.http.fastcgi_cache_use_stale }};
 {% endif %}
-  include                 {{ s.conf_dir }}/conf.d/*.conf;
+  include                       {{ s.conf_dir }}/conf.d/*.conf;
 {% if not s.confd_only %}
-  include                 {{ s.conf_dir }}/sites-enabled/*;
+  include                       {{ s.conf_dir }}/sites-enabled/*;
 {% endif %}
 {% for line in s.http._append %}
   {{ line }};
@@ -198,14 +199,18 @@ http {
 }
 {% if s.mail %}
 mail {
-  include                 {{ s.conf_dir }}/conf.mail.d/*.conf;
+  include                       {{ s.conf_dir }}/conf.mail.d/*.conf;
 }
 {% endif %}
 {% if s.stream %}
 stream {
-  include                 {{ s.conf_dir }}/conf.stream.d/*.conf;
+  include                       {{ s.conf_dir }}/conf.stream.d/*.conf;
   {% if not s.confd_only %}
-  include                 {{ s.conf_dir }}/streams-enabled/*;
+  include                       {{ s.conf_dir }}/streams-enabled/*;
   {% endif %}
 }
 {% endif %}
+
+{% for line in s._append %}
+  {{ line }};
+{% endfor %}
