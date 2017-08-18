@@ -13,13 +13,15 @@
 - set_fact:
     keep_conf_server: "{{ keep_conf_server|list_append(server_conf_file) }}"
 
-- include: "{{ playbook_dir }}/roles/jtreminio.common/tasks/firewall/add.yml"
+- include_role:
+    name: jtreminio.common
+    tasks_from: firewall_add
   loop_control:
-    loop_var: irule
+    loop_var: loop_rule
   vars:
     rule:
       protocol: tcp
-      port: "{{ irule|regex_replace('[A-Za-z]+[0-9]*')|regex_replace('[\\s*]')|regex_replace('[^\\d ]') }}"
+      port: "{{ loop_rule|regex_replace('[A-Za-z]+[0-9]*')|regex_replace('[\\s*]')|regex_replace('[^\\d ]') }}"
       action: accept
   with_items: "{{ server.listen }}"
   when: __jtreminio_manage_firewall
