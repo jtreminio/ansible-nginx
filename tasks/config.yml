@@ -54,58 +54,33 @@
     group: "{{ nginx_settings.global_group }}"
     mode: "{{ nginx_settings.global_dir_mode }}"
 
-- block:
-  - file:
-      path: "{{ nginx_conf.conf_dir }}/sites-available"
-      state: directory
-      owner: "{{ nginx_settings.sites_available_owner }}"
-      group: "{{ nginx_settings.sites_available_group }}"
-      mode: "{{ nginx_settings.sites_available_mode }}"
+- file:
+    path: "{{ nginx_conf.conf_dir }}/sites-available"
+    state: directory
+    owner: "{{ nginx_settings.sites_available_owner }}"
+    group: "{{ nginx_settings.sites_available_group }}"
+    mode: "{{ nginx_settings.sites_available_mode }}"
 
-  - file:
-      path: "{{ nginx_conf.conf_dir }}/sites-enabled"
-      state: directory
-      owner: "{{ nginx_settings.global_owner }}"
-      group: "{{ nginx_settings.global_group }}"
-      mode: "{{ nginx_settings.global_dir_mode }}"
+- file:
+    path: "{{ nginx_conf.conf_dir }}/sites-enabled"
+    state: directory
+    owner: "{{ nginx_settings.global_owner }}"
+    group: "{{ nginx_settings.global_group }}"
+    mode: "{{ nginx_settings.global_dir_mode }}"
 
-  - block:
-    - set_fact:
-        server_names: "{{ (server_names|d([])) | list_append('%03d'|format(index|int) ~ '-' ~ server_name|replace(' ', '_') ~ '.conf') }}"
-      loop_control:
-        loop_var: loop_server
-      vars:
-        index: "{{ loop_server.0 }}"
-        server_name: "{{ loop_server.1 }}"
-      with_indexed_items: "{{ nginx_server|json_query('[].server_name[0]') }}"
+- file:
+    path: "{{ nginx_conf.conf_dir }}/streams-available"
+    state: directory
+    owner: "{{ nginx_settings.sites_available_owner }}"
+    group: "{{ nginx_settings.sites_available_group }}"
+    mode: "{{ nginx_settings.sites_available_mode }}"
 
-    - purge_dir:
-        dir: "{{ nginx_conf.conf_dir }}/sites-available"
-        keep: "{{ server_names }}"
-
-    - purge_dir:
-        dir: "{{ nginx_conf.conf_dir }}/sites-enabled"
-        keep: "{{ server_names }}"
-      notify:
-        - restart nginx
-
-    when: nginx_settings.server_purge
-
-  - file:
-      path: "{{ nginx_conf.conf_dir }}/streams-available"
-      state: directory
-      owner: "{{ nginx_settings.sites_available_owner }}"
-      group: "{{ nginx_settings.sites_available_group }}"
-      mode: "{{ nginx_settings.sites_available_mode }}"
-
-  - file:
-      path: "{{ nginx_conf.conf_dir }}/streams-enabled"
-      state: directory
-      owner: "{{ nginx_settings.global_owner }}"
-      group: "{{ nginx_settings.global_group }}"
-      mode: "{{ nginx_settings.global_dir_mode }}"
-
-  when: nginx_settings.confd_only == false
+- file:
+    path: "{{ nginx_conf.conf_dir }}/streams-enabled"
+    state: directory
+    owner: "{{ nginx_settings.global_owner }}"
+    group: "{{ nginx_settings.global_group }}"
+    mode: "{{ nginx_settings.global_dir_mode }}"
 
 - template:
     src: "{{ role_path }}/templates/nginx.conf.j2"
@@ -115,11 +90,3 @@
     mode: "{{ nginx_settings.global_file_mode }}"
   notify:
     - restart nginx
-
-- file:
-    path: "{{ nginx_conf.temp_dir }}/nginx.d"
-    state: absent
-
-- file:
-    path: "{{ nginx_conf.temp_dir }}/nginx.mail.d"
-    state: absent
