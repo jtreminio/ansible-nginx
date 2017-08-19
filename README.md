@@ -204,10 +204,11 @@ Default: `nginx`
 Repo version.
 
 String:
-    * `nginx` - Stable version (use this in production).
-    * `nginx-stable` - Same as `nginx`
-    * `nginx-mainline` - Active development version.
-    * `passenger` - Installs nginx from [phusionpassenger.com](https://phusionpassenger.com)
+
+* `nginx` - Stable version (use this in production).
+* `nginx-stable` - Same as `nginx`
+* `nginx-mainline` - Active development version.
+* `passenger` - Installs nginx from [phusionpassenger.com](https://phusionpassenger.com)
 
 Default: `nginx`
 
