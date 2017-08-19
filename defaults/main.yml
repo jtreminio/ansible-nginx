@@ -139,28 +139,32 @@ _nginx_conf_http_proxy_cache:
   use_temp_path: ~
 
 _nginx_geo:
+  _append: []
+  _prepend: []
   name: ~
   address: ~
   default: ~
   delete: ~
-  networks: []
-  proxies: []
+  network: []
+  proxy: []
   proxy_recursive: false
   ranges: false
 
 _nginx_map:
+  _append: []
+  _prepend: []
   name: ~
   default: ~
   hostnames: false
-  mappings: []
+  mapping: []
   string: ~
 
 _nginx_upstream:
+  _append: []
+  _prepend: []
   name: ''
   context: http
-  pre_config: []
   server: []
-  post_config: []
 
 _nginx_default_server:
   server_name:

@@ -2,6 +2,9 @@
 # {{ ansible_managed }}
 
 geo {{ (geo.address)|ternary(geo.address, '') }} ${{ geo.name }} {
+{% for line in geo._prepend %}
+  {{ line }};
+{% endfor %}
 {% if geo.ranges %}
   ranges;
 {% endif %}
@@ -11,15 +14,18 @@ geo {{ (geo.address)|ternary(geo.address, '') }} ${{ geo.name }} {
 {% if geo.delete %}
   delete {{ geo.delete }};
 {% endif %}
-{% if geo.proxies|length > 0 %}
+{% if geo.proxy|length > 0 %}
   {% if geo.proxy_recursive %}
   proxy_recursive;
   {% endif %}
-  {% for proxy in geo.proxies %}
+  {% for proxy in geo.proxy %}
   proxy {{ proxy }};
   {% endfor %}
 {% endif %}
-{% for network in geo.networks %}
+{% for network in geo.network %}
   {{ network }};
+{% endfor %}
+{% for line in geo._append %}
+  {{ line }};
 {% endfor %}
 }

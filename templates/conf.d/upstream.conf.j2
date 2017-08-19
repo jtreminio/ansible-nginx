@@ -2,15 +2,15 @@
 # {{ ansible_managed }}
 
 upstream {{ upstream.name }} {
-{% for config in upstream.pre_config %}
-  {{ config }};
+{% for line in upstream._prepend %}
+  {{ line }};
 {% endfor %}
 
 {% for server in upstream.server %}
   server     {{ server }};
 {% endfor %}
 
-{% for config in upstream.post_config %}
-  {{ config }};
+{% for line in upstream._append%}
+  {{ line }};
 {% endfor %}
 }

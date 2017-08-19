@@ -2,6 +2,9 @@
 # {{ ansible_managed }}
 
 map {{ map.string }} ${{ map.name }} {
+{% for line in map._prepend %}
+  {{ line }};
+{% endfor %}
 {% if map.hostnames %}
   hostnames;
 {% endif %}
@@ -9,7 +12,10 @@ map {{ map.string }} ${{ map.name }} {
   default {{ map.default }};
 {% endif %}
 
-{% for mapping in map.mappings %}
+{% for mapping in map.mapping %}
   {{ mapping }};
+{% endfor %}
+{% for line in map._append %}
+  {{ line }};
 {% endfor %}
 }
