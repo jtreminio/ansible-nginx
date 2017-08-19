@@ -34,7 +34,7 @@ events {
   accept_mutex_delay            {{ c.events.accept_mutex_delay }};
 {% endif %}
 {% for line in c.events.debug_connection %}
-  {{ append }};
+  {{ line }};
 {% endfor %}
 {% if c.events.multi_accept == 'on' %}
   multi_accept                  on;
@@ -152,37 +152,25 @@ http {
 {% if c.http.proxy_headers_hash_bucket_size %}
   proxy_headers_hash_bucket_size {{ c.http.proxy_headers_hash_bucket_size }};
 {% endif %}
-
-{% if c.http.proxy_cache_path is mapping %}
-  {% for key, value in c.http.proxy_cache_path.iteritems() %}
-  proxy_cache_path              {{ key }} keys_zone={{ value }}
-    {%- if c.http.proxy_cache_levels %} levels={{ c.http.proxy_cache_levels }}{% endif %}
-    {%- if c.http.proxy_cache_max_size %} max_size={{ c.http.proxy_cache_max_size }}{% endif %}
-    {%- if c.http.proxy_cache_inactive %} inactive={{ c.http.proxy_cache_inactive }}{% endif %}
-    {%- if c.http.proxy_use_temp_path %} use_temp_path={{ c.http.proxy_use_temp_path }}{% endif %}
-    {%- if c.http.proxy_cache_loader_files %} loader_files={{ c.http.proxy_cache_loader_files }}{% endif %}
-    {%- if c.http.proxy_cache_loader_sleep %} loader_sleep={{ c.http.proxy_cache_loader_sleep }}{% endif %}
-    {%- if c.http.proxy_cache_loader_threshold %} loader_threshold={{ c.http.proxy_cache_loader_threshold }}{% endif %};
-  {% endfor %}
-{% elif c.http.proxy_cache_path is string %}
-  proxy_cache_path              {{ c.http.proxy_cache_path }}
-  {%- if c.http.proxy_cache_levels %} levels={{ c.http.proxy_cache_levels }}{% endif %}
-  {%- if c.http.proxy_cache_keys_zone %} keys_zone={{ c.http.proxy_cache_keys_zone }}{% endif %}
-  {%- if c.http.proxy_cache_max_size %} max_size={{ c.http.proxy_cache_max_size }}{% endif %}
-  {%- if c.http.proxy_cache_inactive %} inactive={{ c.http.proxy_cache_inactive }}{% endif %}
-  {%- if c.http.proxy_use_temp_path %} use_temp_path={{ c.http.proxy_use_temp_path }}{% endif %}
-  {%- if c.http.proxy_cache_loader_files %} loader_files={{ c.http.proxy_cache_loader_files }}{% endif %}
-  {%- if c.http.proxy_cache_loader_sleep %} loader_sleep={{ c.http.proxy_cache_loader_sleep }}{% endif %}
-  {%- if c.http.proxy_cache_loader_threshold %} loader_threshold={{ c.http.proxy_cache_loader_threshold }}{% endif %};
-{% endif -%}
-
-{% if c.http.fastcgi_cache_path %}
-  fastcgi_cache_path            {{ c.http.fastcgi_cache_path }}
-  {%- if c.http.fastcgi_cache_levels %} levels={{ c.http.fastcgi_cache_levels }}{% endif %}
-  {%- if c.http.fastcgi_cache_keys_zone %} keys_zone={{ c.http.fastcgi_cache_keys_zone }}{% endif %}
-  {%- if c.http.fastcgi_cache_max_size %} max_size={{ c.http.fastcgi_cache_max_size }}{% endif %}
-  {%- if c.http.fastcgi_cache_inactive %} inactive={{ c.http.fastcgi_cache_inactive }}{% endif %};
-{% endif -%}
+{% for proxy_cache in c.http.proxy_cache|d([]) %}
+  {% set proxy_cache = _nginx_conf_http_proxy_cache|combine(proxy_cache) %}
+  proxy_cache_path              {{ proxy_cache.path }} keys_zone={{ proxy_cache.keys_zone }}
+    {%- if proxy_cache.levels %} levels={{ proxy_cache.levels }}{% endif %}
+    {%- if proxy_cache.max_size %} max_size={{ proxy_cache.max_size }}{% endif %}
+    {%- if proxy_cache.inactive %} inactive={{ proxy_cache.inactive }}{% endif %}
+    {%- if proxy_cache.use_temp_path %} use_temp_path={{ proxy_cache.use_temp_path }}{% endif %}
+    {%- if proxy_cache.loader_files %} loader_files={{ proxy_cache.loader_files }}{% endif %}
+    {%- if proxy_cache.loader_sleep %} loader_sleep={{ proxy_cache.loader_sleep }}{% endif %}
+    {%- if proxy_cache.loader_threshold %} loader_threshold={{ proxy_cache.loader_threshold }}{% endif %};
+{% endfor %}
+{% for fastcgi_cache in c.http.fastcgi_cache|d([]) %}
+  {% set fastcgi_cache = _nginx_conf_http_fastcgi_cache|combine(fastcgi_cache) %}
+  fastcgi_cache_path            {{ fastcgi_cache.path }}
+  {%- if fastcgi_cache.levels %} levels={{ fastcgi_cache.levels }}{% endif %}
+  {%- if fastcgi_cache.keys_zone %} keys_zone={{ fastcgi_cache.keys_zone }}{% endif %}
+  {%- if fastcgi_cache.max_size %} max_size={{ fastcgi_cache.max_size }}{% endif %}
+  {%- if fastcgi_cache.inactive %} inactive={{ fastcgi_cache.inactive }}{% endif %};
+{% endfor %}
 {% if c.http.fastcgi_cache_key %}
   fastcgi_cache_key             {{ c.http.fastcgi_cache_key }};
 {% endif %}

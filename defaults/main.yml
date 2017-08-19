@@ -16,21 +16,20 @@ __nginx_settings:
 
 _nginx_settings:
   conf_purge: true
-  default_server: 1
-  global_group: root
-  global_file_mode: '0644'
+  default_server: true
   global_dir_mode: '0755'
+  global_file_mode: '0644'
+  global_group: root
   global_owner: root
   log_group: "{{ __nginx_log_group }}"
   log_mode: '0750'
-  manage_repo: 1
+  manage_repo: true
   package_state: present
   package_name: nginx
   package_source: nginx
   passenger_package_state: present
   root_group: root
   server_purge: true
-  service_args: ~
   service_enabled: 'yes'
   service_manage: true
   service_name: nginx
@@ -47,8 +46,8 @@ _nginx_conf:
   daemon_user: "{{ __nginx_daemon_user }}"
   error_log: "{{ __nginx_log_dir }}/error.log"
   error_log_severity: error
-  events: {} # use _nginx_conf_events
-  http: {} # use _nginx_conf_http
+  events: {} # uses _nginx_conf_events
+  http: {} # uses _nginx_conf_http
   log_dir: "{{ __nginx_log_dir }}"
   mail: false
   pid: /var/run/nginx.pid
@@ -57,7 +56,6 @@ _nginx_conf:
   super_user: true
   worker_processes: 1
   worker_rlimit_nofile: 1024
-  temp_dir: /tmp
 
 _nginx_conf_events:
   _append: []
@@ -79,12 +77,8 @@ _nginx_conf_http:
   client_body_temp_path: "{{ __nginx_run_dir }}/client_body_temp"
   client_body_timeout: 60
   client_max_body_size: 10m
-  fastcgi_cache_inactive: 20m
+  fastcgi_cache: [] # uses _nginx_conf_http_fastcgi_cache
   fastcgi_cache_key: ~
-  fastcgi_cache_keys_zone: d3:100m
-  fastcgi_cache_levels: 1
-  fastcgi_cache_max_size: 500m
-  fastcgi_cache_path: ~
   fastcgi_cache_use_stale: ~
   gzip: 'on'
   gzip_buffers: ~
@@ -101,14 +95,7 @@ _nginx_conf_http:
   log_format: []
   proxy_buffer_size: 8k
   proxy_buffers: 32 4k
-  proxy_cache_inactive: 20m
-  proxy_cache_keys_zone: d2:100m
-  proxy_cache_levels: 1
-  proxy_cache_loader_files: ~
-  proxy_cache_loader_sleep: ~
-  proxy_cache_loader_threshold: ~
-  proxy_cache_max_size: 500m
-  proxy_cache_path: ~
+  proxy_cache: [] # uses _nginx_conf_http_proxy_cache
   proxy_connect_timeout: 90
   proxy_headers_hash_bucket_size: 64
   proxy_hide_header: []
@@ -122,7 +109,6 @@ _nginx_conf_http:
     - X-Real-IP $remote_addr
     - X-Forwarded-For $proxy_add_x_forwarded_for
     - Proxy ""
-  proxy_use_temp_path: ~
   proxy_temp_path: "{{ __nginx_run_dir }}/proxy_temp"
   sendfile: 'on'
   send_timeout: 60
@@ -133,6 +119,24 @@ _nginx_conf_http:
   tcp_nodelay: 'on'
   types_hash_bucket_size: 512
   types_hash_max_size: 1024
+
+_nginx_conf_http_fastcgi_cache:
+  inactive: 20m
+  keys_zone: d3:100m
+  levels: 1
+  max_size: 500m
+  path: ~
+
+_nginx_conf_http_proxy_cache:
+  inactive: 20m
+  keys_zone: d2:100m
+  levels: 1
+  loader_files: ~
+  loader_sleep: ~
+  loader_threshold: ~
+  max_size: 500m
+  path: ~
+  use_temp_path: ~
 
 _nginx_geo:
   name: ~
