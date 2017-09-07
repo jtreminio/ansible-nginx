@@ -81,7 +81,7 @@ The same is true of `off` turning into boolean `false` and requiring `'off'`.
 Settings
 ========
 
-Please look in `defaults/main.yml` for all available options.```
+Please look in `defaults/main.yml` for all available options.
 
 Do _not_ add `;` after any option. These are added automatically.
 
@@ -1174,3 +1174,870 @@ Default: `http`
 String[]
 
 Default: `[]`
+
+server settings
+-----------------
+
+Controlled via `_nginx_user_settings.server` list, writes to `/etc/nginx/servers-available/`.
+
+See: [core_module#server](http://nginx.org/en/docs/http/ngx_http_core_module.html#server)
+
+Example:
+
+```yaml
+_nginx_user_settings:
+  server:
+    -
+      rewrite_www_to_non_www: 0
+      server_name:
+        - awesome.dev
+        - www.awesome.dev
+      listen:
+        - '*:80'
+      root: /var/www/awesome/web
+      rewrite:
+        -
+          regex: '^/dashboard$'
+          target: '/admin.php?controller=user&action=login last'
+      location:
+        -
+          root: /var/www/awesome/web
+          location: /
+          autoindex: 'on'
+          index:
+            - index.php
+          try_files:
+            - $uri
+            - $uri/
+            - /index.php$is_args$args
+        -
+          root: /var/www/awesome/web
+          location: '~ ^/index\.php(/|$)'
+          index: ~
+          try_files:
+            - $uri
+            - $uri/
+            - /index.php$is_args$args
+          fastcgi_pass: '127.0.0.1:9000'
+          fastcgi_index: index.php
+          fastcgi_split_path_info: '^(.+\.php)(/.*)$'
+          fastcgi_param:
+            - 'SCRIPT_FILENAME $document_root$fastcgi_script_name'
+            - 'APP_ENV dev'
+          set:
+            - '$path_info $fastcgi_path_info'
+```
+
+The generated file will look similar to this:
+
+```
+server {
+  listen                    *:80;
+  server_name               awesome.dev www.awesome.dev;
+
+  client_body_timeout       12;
+  client_header_timeout     12;
+  client_max_body_size      8m;
+  gzip_types                text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+  root                      /var/www/awesome/web;
+  resolver                  8.8.8.8 8.8.4.4;
+  index                     index.html index.htm;
+  access_log                /var/log/nginx/awesome.dev.access.log combined;
+  error_log                 /var/log/nginx/awesome.dev.error.log;
+
+  location / {
+    autoindex               on;
+    index                   index.php;
+    try_files               $uri $uri/ /index.php$is_args$args;
+  }
+
+  location ~ ^/index\.php(/|$) {
+    set                     $path_info $fastcgi_path_info;
+    include                 /etc/nginx/fastcgi_params;
+    fastcgi_pass            127.0.0.1:9000;
+    fastcgi_index           index.php;
+    fastcgi_split_path_info ^(.+\.php)(/.*)$;
+    fastcgi_param           SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    fastcgi_param           APP_ENV dev;
+    autoindex               on;
+    try_files               $uri $uri/ /index.php$is_args$args;
+  }
+}
+```
+
+#### main section
+
+**`rewrite_www_to_non_www`**
+
+Redirects all www traffic to non-www.
+
+ie: www.google.com -> google.com
+
+Adds code similar to:
+
+```
+server {
+  listen *:80;
+  server_name www.awesome.dev;
+  return 301 http://awesome.dev$request_uri;
+}
+```
+
+Boolean
+
+Default: `false`
+
+**`server_name`**
+
+Domain names for this server. The first entry defined will be used as the conf file name:
+
+```yaml
+_nginx_user_settings:
+  server:
+    -
+      server_name:
+        - awesome.dev
+        - www.awesome.dev
+```
+
+Will result in file `/etc/nginx/sites-available/001-awesome.dev.conf` or similar.
+
+String[]
+
+Default: []
+
+**`listen`**
+
+Ports to listen for this server. Can use IPv6.
+
+```yaml
+_nginx_user_settings:
+  server:
+    -
+      listen:
+        - '*:80'
+        - '[::]:80'
+        - 443 default ssl http2
+```
+
+String[]
+
+Default: []
+
+**`root`**
+
+String
+
+Default: `null`
+
+**`index_files`**
+
+String[]
+
+Default: 
+```yaml
+[
+  - index.html
+  - index.htm
+]
+```
+
+**`access_log`**
+
+If `null`, will use first `location.server_name` entry:
+
+`/var/log/nginx/awesome.dev.access.log`
+
+Uses `server.format_log`
+
+String|String[]
+
+Default: `null`
+
+**`add_header`**
+
+String[]
+
+Default: []
+
+**`allow_deny`**
+
+String[]
+
+Default: []
+
+**`auth_basic`**
+
+String[]
+
+Default: []
+
+**`auth_basic_user_file`**
+
+String
+
+Default: `null`
+
+**`auth_request`**
+
+String
+
+Default: `null`
+
+**`client_body_timeout`**
+
+Int
+
+Default: `12`
+
+**`client_header_timeout`**
+
+Int
+
+Default: `12`
+
+**`client_max_body_size`**
+
+String
+
+Default: `8m`
+
+**`error_log`**
+
+If `null`, will use first `location.server_name` entry:
+
+`/var/log/nginx/awesome.dev.error.log`
+
+String|String[]
+
+Default: `null`
+
+**`error_page`**
+
+String[]
+
+Default: `[]`
+
+**`format_log`**
+
+Used by Uses `server.access_log`
+
+String
+
+Default: `combined`
+
+**`geo`**
+
+See [geo settings](#geo-settings)
+
+Default: `[]`
+
+**`gzip_types`**
+
+String[]
+
+Default:
+```yaml
+[
+    - text/plain
+    - text/css
+    - application/json
+    - application/x-javascript
+    - text/xml
+    - application/xml
+    - application/xml+rss
+    - text/javascript
+]
+```
+
+**`include`**
+
+String[]
+
+Default: `[]`
+
+**`log_by_lua`**
+
+String
+
+Default: `null`
+
+**`log_by_lua_file`**
+
+String
+
+Default: `null`
+
+**`maintenance`**
+
+Boolean
+
+Default: `null`
+
+**`maintenance_value`**
+
+Only applicable if `server.maintenance` is `true`.
+
+String
+
+Default: `null`
+
+**`map`**
+
+See [map settings](#map-settings)
+
+Default: `[]`
+
+**`passenger_cgi_param`**
+
+String[]
+
+Default: `[]`
+
+**`passenger_env_var`**
+
+String[]
+
+Default: `[]`
+
+**`passenger_pre_start`**
+
+String|String[]
+
+Default: `null`
+
+**`passenger_set_header`**
+
+String[]
+
+Default: `[]`
+
+**`proxy_set_header`**
+
+String[]
+
+Default:
+```yaml
+[
+    - Host $host
+    - X-Real-IP $remote_addr
+    - X-Forwarded-For $proxy_add_x_forwarded_for
+    - Proxy ""
+]
+```
+
+**`resolver`**
+
+String[]
+
+Default:
+```yaml
+[
+    - 8.8.8.8
+    - 8.8.4.4
+]
+```
+
+**`ssl`**
+
+Enables SSL support for server.
+
+Boolean
+
+Default: `false`
+
+**`ssl_certificate`**
+
+Only applicable if `ssl` is set to `true`.
+
+Uses unsecure cert for testing purposes.
+
+String
+
+Default: `/etc/ssl/certs/ssl-cert-snakeoil.pem`
+
+**`ssl_certificate_key`**
+
+Only applicable if `ssl` is set to `true`.
+
+Uses unsecure key for testing purposes.
+
+String
+
+Default: `/etc/ssl/private/ssl-cert-snakeoil.key`
+
+**`ssl_ciphers`**
+
+Only applicable if `ssl` is set to `true`.
+
+String
+
+Default: `EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH`
+
+**`ssl_ecdh_curve`**
+
+Only applicable if `ssl` is set to `true`.
+
+String
+
+Default: `secp384r1`
+
+**`ssl_prefer_server_ciphers`**
+
+String
+
+Default: `'on'`
+
+**`ssl_protocols`**
+
+String
+
+Default: `TLSv1.2`
+
+**`ssl_redirect`**
+
+Only applicable if `ssl` is set to `true`.
+
+Redirects all traffic to https
+
+Boolean
+
+Default: `false`
+
+**`ssl_session_cache`**
+
+Only applicable if `ssl` is set to `true`.
+
+String
+
+Default: `shared:SSL:10m`
+
+**`ssl_session_tickets`**
+
+Only applicable if `ssl` is set to `true`.
+
+String
+
+Default: `'off'`
+
+**`ssl_session_timeout`**
+
+Only applicable if `ssl` is set to `true`.
+
+String
+
+Default: `5m`
+
+**`ssl_stapling`**
+
+Only applicable if `ssl` is set to `true`.
+
+String
+
+Default: `'on'`
+
+**`ssl_stapling_verify`**
+
+Only applicable if `ssl` is set to `true`.
+
+String
+
+Default: `'on'`
+
+#### server.rewrite section
+
+List of dict within `server` dict.
+
+Must contain at least `regex` and `target` elements, with `when` as optional.
+
+Example:
+```yaml
+_nginx_user_settings:
+  server:
+    -
+      rewrite:
+        -
+          regex: '^/page-([0-9]+)$'
+          target: '/index.php?controller=blog&action=view&page=$1 last'
+        -
+          when: '$w3tc_rewrite = 1'
+          regex: '^'
+          target: '"/wp-content/cache/page_enhanced/$host/$request_uri/_index$w3tc_ua$w3tc_ref$w3tc_ssl$w3tc_ext$w3tc_enc" last'
+
+```
+
+The generated block will look similar to this:
+
+```
+  rewrite ^/page-([0-9]+)$ /index.php?controller=blog&action=view&page=$1 last;
+
+  if ($w3tc_rewrite = 1) {
+    rewrite ^ "/wp-content/cache/page_enhanced/$host/$request_uri/_index$w3tc_ua$w3tc_ref$w3tc_ssl$w3tc_ext$w3tc_enc" last;
+  }
+```
+
+#### server.location section
+
+All available options can be seen under `_nginx_location` dict.
+
+Controlled via `_nginx_user_settings.server.location` list.
+
+See [server settings](#server-settings) for example.
+
+The generated block will look similar to this:
+
+```
+  location ~ ^/index\.php(/|$) {
+    set                     $path_info $fastcgi_path_info;
+    include                 /etc/nginx/fastcgi_params;
+    fastcgi_pass            127.0.0.1:9000;
+    fastcgi_index           index.php;
+    fastcgi_split_path_info ^(.+\.php)(/.*)$;
+    fastcgi_param           SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    fastcgi_param           APP_ENV dev;
+    autoindex               on;
+    try_files               $uri $uri/ /index.php$is_args$args;
+  }
+```
+
+**`root`**
+
+String
+
+Default: `null`
+
+**`index`**
+
+String[]
+
+Default:
+```yaml
+[
+    - index.html
+]
+```
+
+**`location`**
+
+Used next to `location` keyword.
+
+Example: `~ ^/index\.php(/|$)`
+
+Required.
+
+String
+
+Default: `/`
+
+**`alias`**
+
+String
+
+Default: `null`
+
+**`allow`**
+
+String[]
+
+Default: `[]`
+
+**`auth_basic`**
+
+String
+
+Default: `null`
+
+**`auth_basic_user_file`**
+
+String
+
+Default: `null`
+
+**`auth_request`**
+
+String
+
+Default: `null`
+
+**`autoindex`**
+
+String
+
+Default: `'on'`
+
+**`deny`**
+
+String[]
+
+Default: `[]`
+
+**`expires`**
+
+String
+
+Default: `null`
+
+**`fastcgi_index`**
+
+String
+
+Default: `null`
+
+**`fastcgi_param`**
+
+String[]
+
+Default:
+```yaml
+[
+    - SCRIPT_FILENAME $document_root$fastcgi_script_name
+]
+```
+
+**`fastcgi_params_file`**
+
+Used after `include` keyword.
+
+example: `include /etc/nginx/fastcgi_params;`
+
+String
+
+Default: `{{ conf.conf_dir }}/fastcgi_params`
+
+**`fastcgi_pass`**
+
+String
+
+Default: `null`
+
+**`fastcgi_script`**
+
+Only applicable if `fastcgi_pass` has string value.
+
+Used after `fastcgi_param SCRIPT_FILENAME`.
+
+example: `fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;`
+
+String
+
+Default: `null`
+
+**`fastcgi_split_path_info`**
+
+Only applicable if `fastcgi_pass` has string value.
+
+String
+
+Default: `null`
+
+**`flv`**
+
+Boolean
+
+Default: `false`
+
+**`include`**
+
+String[]
+
+Default: `[]`
+
+**`internal`**
+
+Boolean
+
+Default: `false`
+
+**`mp4`**
+
+Boolean
+
+Default: `false`
+
+**`proxy_buffering`**
+
+Only applicable if `proxy_pass` has string value.
+
+String
+
+Default: `null`
+
+**`proxy_cache`**
+
+Only applicable if `proxy_pass` has string value.
+
+String
+
+Default: `null`
+
+**`proxy_cache_key`**
+
+Only applicable if `proxy_pass` has string value.
+
+String
+
+Default: `null`
+
+**`proxy_cache_use_stale`**
+
+Only applicable if `proxy_pass` has string value.
+
+String
+
+Default: `null`
+
+**`proxy_cache_valid`**
+
+Only applicable if `proxy_pass` has string value.
+
+String[]
+
+Default: `[]`
+
+**`proxy_connect_timeout`**
+
+Only applicable if `proxy_pass` has string value.
+
+String
+
+Default: `60s`
+
+**`proxy_hide_header`**
+
+Only applicable if `proxy_pass` has string value.
+
+String[]
+
+Default: `[]`
+
+**`proxy_http_version`**
+
+Only applicable if `proxy_pass` has string value.
+
+String
+
+Default: `null`
+
+**`proxy_method`**
+
+Only applicable if `proxy_pass` has string value.
+
+String
+
+Default: `null`
+
+**`proxy_pass`**
+
+String
+
+Default: `null`
+
+**`proxy_pass_header`**
+
+Only applicable if `proxy_pass` has string value.
+
+String[]
+
+Default: `[]`
+
+**`proxy_read_timeout`**
+
+Only applicable if `proxy_pass` has string value.
+
+String
+
+Default: `60s`
+
+**`proxy_redirect`**
+
+Only applicable if `proxy_pass` has string value.
+
+String
+
+Default: `null`
+
+**`proxy_set_body`**
+
+Only applicable if `proxy_pass` has string value.
+
+String
+
+Default: `null`
+
+**`proxy_set_header`**
+
+Only applicable if `proxy_pass` has string value.
+
+String[]
+
+Default: `[]`
+
+**`satisfy`**
+
+String
+
+Default: `null`
+
+**`set`**
+
+String[]
+
+Default: `[]`
+
+**`stub_status`**
+
+Boolean
+
+Default: `false`
+
+**`try_files`**
+
+String[]
+
+Default:
+```yaml
+[
+    - $uri
+    - $uri/
+]
+```
+
+**`uwsgi_pass`**
+
+String
+
+Default: `null`
+
+**`uwsgi_param`**
+
+Only applicable if `uwsgi_pass` has string value.
+
+String[]
+
+Default: `[]`
+
+**`uwsgi_params_file`**
+
+Only applicable if `uwsgi_pass` has string value.
+
+String
+
+Default: `{{ conf.conf_dir }}/uwsgi_params`
+
+**`uwsgi_read_timeout`**
+
+Only applicable if `uwsgi_pass` has string value.
+
+String
+
+Default: `60s`
+
+**`www_root`**
+
+String
+
+Default: `null`
+
+**`rewrite`** (location.rewrite)
+
+See _server.rewrite section_ for example.
