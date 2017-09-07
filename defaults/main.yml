@@ -181,7 +181,9 @@ _nginx_default_server:
   resolver: []
 
 _nginx_server:
-  rewrite_www_to_non_www: 0
+  _append: []
+  _prepend: []
+  rewrite_www_to_non_www: false
   server_name: []
   listen:
     - '*:80'
@@ -212,12 +214,11 @@ _nginx_server:
     - application/xml+rss
     - text/javascript
   include: []
-  location: []
+  location: [] # uses _nginx_location
   log_by_lua: ~
   log_by_lua_file: ~
   maintenance: ~
   maintenance_value: ~
-  map: []
   passenger_cgi_param: []
   passenger_env_var: []
   passenger_pre_start: ~
@@ -227,13 +228,10 @@ _nginx_server:
     - X-Real-IP $remote_addr
     - X-Forwarded-For $proxy_add_x_forwarded_for
     - Proxy ""
-  raw_append: []
-  raw_prepend: []
   resolver:
     - 8.8.8.8
     - 8.8.4.4
   rewrite: []
-  sendfile: 'off'
   ssl: false
   ssl_certificate: /etc/ssl/certs/ssl-cert-snakeoil.pem
   ssl_certificate_key: /etc/ssl/private/ssl-cert-snakeoil.key
@@ -241,7 +239,7 @@ _nginx_server:
   ssl_ecdh_curve: secp384r1
   ssl_prefer_server_ciphers: 'on'
   ssl_protocols: TLSv1.2
-  ssl_redirect: 0
+  ssl_redirect: false
   ssl_session_cache: shared:SSL:10m
   ssl_session_tickets: 'off'
   ssl_session_timeout: 5m
@@ -249,6 +247,8 @@ _nginx_server:
   ssl_stapling_verify: 'on'
 
 _nginx_location:
+  _append: []
+  _prepend: []
   root: ~
   index:
     - index.html
@@ -259,9 +259,8 @@ _nginx_location:
   auth_basic_user_file: ~
   auth_request: ~
   autoindex: 'on'
-  cfg_prepend: []
   deny: []
-  expires: false
+  expires: ~
   fastcgi_index: ~
   fastcgi_param:
     - SCRIPT_FILENAME $document_root$fastcgi_script_name
@@ -271,32 +270,32 @@ _nginx_location:
   fastcgi_split_path_info: ~
   flv: false
   include: []
-  internal: ~
+  internal: false
   mp4: false
   proxy_buffering: ~
   proxy_cache: ~
   proxy_cache_key: ~
   proxy_cache_use_stale: ~
-  proxy_cache_valid: ~
-  proxy_connect_timeout: ~
+  proxy_cache_valid: []
+  proxy_connect_timeout: 60s
   proxy_hide_header: []
   proxy_http_version: ~
   proxy_method: ~
   proxy_pass: ~
   proxy_pass_header: []
-  proxy_read_timeout: ~
+  proxy_read_timeout: 60s
   proxy_redirect: ~
   proxy_set_body: ~
   proxy_set_header: []
   rewrite: []
   satisfy: ~
   set: []
-  stub_status: ~
+  stub_status: false
   try_files:
     - $uri
     - $uri/
   uwsgi_pass: false
   uwsgi_param: []
-  uwsgi_params: ~
-  uwsgi_read_timeout: ~
+  uwsgi_params_file: "{{ __nginx_conf_dir }}/uwsgi_params"
+  uwsgi_read_timeout: 60s
   www_root: ~

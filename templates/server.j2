@@ -8,7 +8,7 @@ server {
   listen                    {{ listen }};
     {% endfor %}
   server_name  www.{{ server_name }};
-    {% if server.ssl_redirect or server.ssl_only %}
+    {% if server.ssl_redirect %}
   return 301 https://{{ server_name }}$request_uri;
     {% else %}
   return 301 http://{{ server_name }}$request_uri;
@@ -106,8 +106,8 @@ server {
 {% for allow_deny in server.allow_deny %}
   {{ allow_deny }};
 {% endfor %}
-{% for raw_prepend in server.raw_prepend %}
-  {{ raw_prepend }};
+{% for line in server._prepend%}
+  {{ line }};
 {% endfor %}
 {% if server.root %}
   root                      {{ server.root }};
@@ -164,6 +164,12 @@ server {
   {% set location = _nginx_location|combine(location) %}
 
   location {{ location.location }} {
+  {% for line in location._prepend%}
+    {{ line }};
+  {% endfor %}
+  {% if location.www_root %}
+    root                    {{ location.www_root }};
+  {% endif %}
   {% if location.internal %}
     internal;
   {% endif %}
@@ -197,9 +203,6 @@ server {
   {% if location.auth_request %}
     auth_request            {{ location.auth_request }};
   {% endif %}
-  {% for cfg in location.cfg_prepend %}
-    {{ cfg }}
-  {% endfor %}
   {% for rewrite in location.rewrite %}
     {% if rewrite.when %}
     if ({{ rewrite.when }}) {
@@ -257,10 +260,7 @@ server {
     {% endif %}
   {% endif %}
   {% if location.uwsgi_pass %}
-    {% if location.www_root %}
-    root                    {{ location.www_root }};
-    {% endif %}
-    include                 {{ location.uwsgi_params }};
+    include                 {{ location.uwsgi_params_file }};
     uwsgi_pass              {{ location.uwsgi_pass }};
     {% for uwsgi_param in location.uwsgi_param %}
     uwsgi_param             {{ uwsgi_param }};
@@ -270,9 +270,6 @@ server {
     {% endif %}
   {% endif %}
   {% if location.fastcgi_pass %}
-    {% if location.www_root %}
-    root                    {{ location.www_root }};
-    {% endif %}
     include                 {{ location.fastcgi_params_file }};
     fastcgi_pass            {{ location.fastcgi_pass }};
     {% if location.fastcgi_index %}
@@ -288,9 +285,6 @@ server {
     fastcgi_param           {{ fastcgi_param }};
     {% endfor %}
   {% endif %}
-  {% if location.www_root %}
-    root                    {{ location.www_root }};
-  {% endif %}
   {% if location.autoindex %}
     autoindex               {{ location.autoindex }};
   {% endif %}
@@ -303,13 +297,16 @@ server {
   {% for include in location.include %}
     include                 {{ include }};
   {% endfor %}
+  {% for line in location._append%}
+    {{ line }};
+  {% endfor %}
   }
 {% endfor %}
 {% for include in server.include %}
   include                   {{ include }};
 {% endfor %}
-{% for raw_append in server.raw_append %}
-  {{ raw_append }};
+{% for line in server._append%}
+  {{ line }};
 {% endfor %}
 }
 
