@@ -83,6 +83,13 @@
     mode: "{{ nginx_settings.global_dir_mode }}"
 
 - template:
+    src: "{{ role_path }}/templates/conf.d/uwsgi_params.j2"
+    dest: "{{ nginx_conf.conf_dir }}/uwsgi_params"
+    owner: "{{ nginx_settings.global_owner }}"
+    group: "{{ nginx_settings.global_group }}"
+    mode: "{{ nginx_settings.global_file_mode }}"
+
+- template:
     src: "{{ role_path }}/templates/nginx.conf.j2"
     dest: "{{ nginx_conf.conf_dir }}/nginx.conf"
     owner: "{{ nginx_settings.global_owner }}"
