@@ -219,6 +219,7 @@ _nginx_server:
   log_by_lua_file: ~
   maintenance: ~
   maintenance_value: ~
+  map: []
   passenger_cgi_param: []
   passenger_env_var: []
   passenger_pre_start: ~
