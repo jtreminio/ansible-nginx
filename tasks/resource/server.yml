@@ -44,14 +44,14 @@
   notify:
     - restart nginx
 
-- include: geo.yml
+- include_tasks: geo.yml
   loop_control:
     loop_var: loop_geo
   vars:
     v_geo: "{{ loop_geo }}"
   with_items: "{{ server.geo }}"
 
-- include: map.yml
+- include_tasks: map.yml
   loop_control:
     loop_var: loop_map
   vars:
